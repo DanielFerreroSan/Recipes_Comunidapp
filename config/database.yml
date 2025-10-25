@@ -80,5 +80,6 @@ test:
 production:
   <<: *default
   database: recipes_comunidapp_production
-  username: recipes_comunidapp
-  password: <%= ENV["RECIPES_COMUNIDAPP_DATABASE_PASSWORD"] %>
+  DATABASE_URL: postgres://ufa0tu2sgo5dpb:p3bb81b994fe3345b7953decd08b1b315d50bbbfecc61ac07290738970720ab4f@cd7f19r8oktbkp.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/dfff6q4mpu1uv3
+#  username: recipes_comunidapp
+#  password: <%= ENV["RECIPES_COMUNIDAPP_DATABASE_PASSWORD"] %>
