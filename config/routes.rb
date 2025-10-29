@@ -9,4 +9,12 @@ Rails.application.routes.draw do
   
   # Defines the root path route ("/")
   # root "posts#index"
+  resources :chats, only: [:index, :show, :create, :destroy] do
+    resources :messages, only: [:create]
+    resources :recipes, only: [:create]
+  end
+
+  # Recetas (pueden estar asociadas a un mensaje o guardadas por el usuario)
+  resources :recipes, only: [:index, :show, :destroy]
+
 end
