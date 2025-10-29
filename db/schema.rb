@@ -10,17 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_25_214417) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_29_000306) do
+  create_schema "_heroku"
+
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_stat_statements"
   enable_extension "plpgsql"
 
   create_table "chats", force: :cascade do |t|
     t.string "title"
     t.bigint "user_id", null: false
-    t.bigint "recipe_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["recipe_id"], name: "index_chats_on_recipe_id"
     t.index ["user_id"], name: "index_chats_on_user_id"
   end
 
@@ -29,6 +30,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_25_214417) do
     t.bigint "chat_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "role"
     t.index ["chat_id"], name: "index_messages_on_chat_id"
   end
 
@@ -39,6 +41,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_25_214417) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "chat_id"
+    t.index ["chat_id"], name: "index_recipes_on_chat_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -59,7 +63,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_25_214417) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  add_foreign_key "chats", "recipes"
   add_foreign_key "chats", "users"
   add_foreign_key "messages", "chats"
+  add_foreign_key "recipes", "chats"
 end
