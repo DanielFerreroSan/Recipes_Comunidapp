@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_29_000306) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_30_004128) do
   create_schema "_heroku"
 
   # These are extensions that must be enabled in order to support this database
@@ -31,7 +31,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_29_000306) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "role"
+    t.bigint "user_id", null: false
     t.index ["chat_id"], name: "index_messages_on_chat_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
   create_table "recipes", force: :cascade do |t|
@@ -65,5 +67,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_29_000306) do
 
   add_foreign_key "chats", "users"
   add_foreign_key "messages", "chats"
+  add_foreign_key "messages", "users"
   add_foreign_key "recipes", "chats"
 end

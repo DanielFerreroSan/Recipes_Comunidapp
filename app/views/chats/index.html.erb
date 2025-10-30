@@ -1,0 +1,9 @@
+<h1>Chats</h1>
+
+<ul>
+  <% @chats.each do |chat| %>
+    <li>
+      <%= link_to "Chat ##{chat.id}", chat_path(chat) %>
+    </li>
+  <% end %>
+</ul>
