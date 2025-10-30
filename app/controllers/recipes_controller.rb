@@ -11,7 +11,7 @@ class RecipesController < ApplicationController
 
   def destroy
     @recipe.destroy
-    redirect_to recipes_path, notice: "Receta eliminada correctamente."
+    redirect_to recipes_path, notice: "Receta eliminada correctamente.", status: :see_other
   end
 
   private
