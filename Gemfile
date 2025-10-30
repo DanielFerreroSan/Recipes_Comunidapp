@@ -74,3 +74,5 @@ group :test do
 end
 
 gem "devise", "~> 4.9"
+
+gem "ruby_llm", "~> 1.6.4"
