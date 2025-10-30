@@ -1,2 +1,7 @@
-<h1>Messages#create</h1>
-<p>Find me in app/views/messages/create.html.erb</p>
+<h2>Nuevo mensaje</h2>
+
+<%= simple_form_for([@chat, @message]) do |f| %>
+  <%= f.input :content, as: :text, label: "Escribí tu mensaje", input_html: { rows: 3 } %>
+  <%= f.button :submit, "Enviar mensaje" %>
+<% end %>
+
