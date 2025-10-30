@@ -10,4 +10,5 @@
 
     # Defines the root path route ("/")
     # root "posts#index"
+    resources :recipes, only: [:index, :show, :destroy]
   end
