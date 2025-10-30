@@ -1,4 +1,4 @@
 class Recipe < ApplicationRecord
   belongs_to :chat
-  belongs_to :user, through: :chat
+  has_one :user, through: :chat
 end
