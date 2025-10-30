@@ -1,0 +1,22 @@
+<h1>Chat ##<%= @chat.id %></h1>
+
+<h2>Mensajes</h2>
+<ul>
+  <% @messages.each do |message| %>
+    <li>
+      <strong><%= message.user&.email || "Anónimo" %>:</strong>
+      <%= message.content %>
+    </li>
+  <% end %>
+</ul>
+
+<h3>Enviar un mensaje</h3>
+<%= form_with model: [@chat, @message], local: true do |form| %>
+  <p>
+    <%= form.label :content %><br>
+    <%= form.text_area :content %>
+  </p>
+  <p>
+    <%= form.submit "Enviar" %>
+  </p>
+<% end %>
