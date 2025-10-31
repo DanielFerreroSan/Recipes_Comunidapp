@@ -4,17 +4,17 @@
   <div class="row">
     <% @recipes.each do |recipe| %>
       <div class="col-md-6 col-lg-4 mb-4">
-        <div class="card h-100 shadow-sm">
+        <div class="card h-100 shadow rounded-4 border-0" style="background-color: #f3f0e5ff;">
           <div class="card-body">
             <h4 class="card-title"><%= link_to recipe.name, recipe_path(recipe), class: "text-decoration-none text-dark" %></h4>
             <p class="card-text text-muted"><strong>Categoría:</strong> <%= recipe.category.presence || "Sin categoría" %></p>
             <p><%= truncate(recipe.content, length: 100, separator: ' ') %></p>
           </div>
           <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
-            <%= link_to "Ver", recipe_path(recipe), class: "btn btn-primary btn-sm" %>
+            <%= link_to "Ver", recipe_path(recipe), class: "btn btn-primary btn-sm rounded-5" %>
             <%= link_to "Eliminar", recipe_path(recipe),
                   data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro de eliminar esta receta?" },
-                  class: "btn btn-danger btn-sm" %>
+                  class: "btn btn-danger btn-sm rounded-5 " %>
           </div>
         </div>
       </div>
