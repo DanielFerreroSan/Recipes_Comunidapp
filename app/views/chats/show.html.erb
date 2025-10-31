@@ -1,22 +1,23 @@
-<h1>Chat ##<%= @chat.id %></h1>
+<h1 class="chat-title">Chat #<%= @chat.id %></h1>
 
-<h2>Mensajes</h2>
-<ul>
+<div class="chat-container">
   <% @messages.each do |message| %>
-    <li>
-      <strong><%= message.user&.email || "Anónimo" %>:</strong>
-      <%= message.content %>
-    </li>
+    <div class="message <%= message.user.present? ? 'user-message' : 'ai-message' %>">
+      <div class="bubble">
+        <%= message.content %>
+      </div>
+    </div>
   <% end %>
-</ul>
+</div>
 
-<h3>Enviar un mensaje</h3>
-<%= form_with model: [@chat, @message], local: true do |form| %>
-  <p>
-    <%= form.label :content %><br>
-    <%= form.text_area :content %>
-  </p>
-  <p>
-    <%= form.submit "Enviar" %>
-  </p>
-<% end %>
+<div class="message-form">
+  <%= form_with model: [@chat, @message], local: true do |form| %>
+    <div class="form-group">
+      <%= form.text_area :content, rows: 3, placeholder: "Escribe tu mensaje..." %>
+    </div>
+    <div class="form-actions">
+      <%= form.submit "Enviar", class: "send-btn" %>
+    </div>
+  <% end %>
+</div>
+

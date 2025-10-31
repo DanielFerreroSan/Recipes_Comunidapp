@@ -1,0 +1,85 @@
+.chat-title {
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  margin-bottom: 20px;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  width: 80%;
+  max-width: 1000px;
+  margin: 0 auto 20px;
+  background-color: #f9f9f9;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+/* Mensajes IA */
+.ai-message {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.ai-message .bubble {
+  background-color: #e5e5ea;
+  color: #000;
+  border-radius: 16px 16px 16px 0;
+  padding: 10px 15px;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+/* Mensajes usuario */
+.user-message {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.user-message .bubble {
+  background-color: #0078ff;
+  color: white;
+  border-radius: 16px 16px 0 16px;
+  padding: 10px 15px;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+/* Formulario */
+.message-form {
+  width: 80%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.form-group textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 8px;
+  resize: vertical;
+}
+
+.send-btn {
+  background-color: #0078ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.send-btn:hover {
+  background-color: #005fcc;
+}
+
+/* Móvil */
+@media (max-width: 768px) {
+  .chat-container, .message-form {
+    width: 95%;
+  }
+}
