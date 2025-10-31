@@ -13,7 +13,8 @@ Proporciona instrucciones paso a paso en formato de lista, utilizando Markdown."
     @message.user = current_user
     if @message.save
       ruby_llm_chat = RubyLLM.chat
-      response = ruby_llm_chat.with_instructions(SYSTEM_PROMPT).ask("Tengo estos ingredientes: #{@message.content}")@chat.messages.create(content: response.content, role: "assistant")
+      response = ruby_llm_chat.with_instructions(SYSTEM_PROMPT).ask("Tengo estos ingredientes: #{@message.content}")
+      # @chat.messages.create(content: response.content, role: "assistant")
       @chat.messages.create(content: response.content,role: "assistant")
       redirect_to chat_path(@chat), notice: "Mensaje creado correctamente."
     else

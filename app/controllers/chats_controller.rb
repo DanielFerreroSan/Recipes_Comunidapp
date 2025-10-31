@@ -1,6 +1,6 @@
 class ChatsController < ApplicationController
 
-def index
+  def index
     @chats = Chat.all
   end
 
@@ -11,12 +11,24 @@ def index
   end
 
   def create
-    @chat = current_user.chats.build(chat_params)
+    puts params
+    @chat = Chat.new
+    @chat.title = "Unknown Title"
+    @chat.user = current_user
+
+    # @chat = current_user.chats.build(chat_params)
+    puts "Paso 2"
     if @chat.save
       redirect_to @chat, notice: "Chat creado exitosamente."
     else
-      render :new, alert: "Error al crear el chat."
+      redirect_to chats_path, alert: "Error al crear el chat."
     end
+  end
+
+  private
+
+  def chat_params
+    params.permit(:title)
   end
 
 end
