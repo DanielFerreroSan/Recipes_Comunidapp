@@ -21,6 +21,30 @@
                 hint: "we need your current password to confirm your changes",
                 required: true,
                 input_html: { autocomplete: "current-password" } %>
+    <%= f.input :age,
+                hint: "give your age to personalize your experience",
+                required: false,
+                input_html: { autocomplete: "age" } %>
+    <%= f.input :gender,
+                hint: "give your age to personalize your experience",
+                required: false,
+                input_html: { autocomplete: "gender" } %>
+    <%= f.input :activity,
+                hint: "tell us about your sports activity to personalize your experience",
+                required: false,
+                input_html: { autocomplete: "activity" } %>
+    <%= f.input :height,
+                hint: "give your height to personalize your experience",
+                required: false,
+                input_html: { autocomplete: "height" } %>
+    <%= f.input :weight,
+                hint: "give your weight to personalize your experience",
+                required: false,
+                input_html: { autocomplete: "weight" } %>
+    <%= f.input :restrictions,
+                hint: "tell us about your dietary restrictions to personalize your experience",
+                required: false,
+                input_html: { autocomplete: "restrictions" } %>
   </div>
 
   <div class="form-actions">
