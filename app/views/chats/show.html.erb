@@ -2,10 +2,26 @@
 
 <h2>Mensajes</h2>
 <ul>
-  <% @messages.each do |message| %>
-    <li>
-      <strong><%= message.user&.email || "Anónimo" %>:</strong>
-      <%= message.content %>
+<% @messages.each do |message| %>
+    <li style="margin-bottom: 20px;">
+      <strong><%= message.user&.email || "IA" %>:</strong>
+      <div><%= simple_format(message.content) %></div>
+
+      <% if message.role == "assistant" %>
+        <% # esta línea es para extraer el "titulo de la receta" %>
+        <% recipe_title = message.content.match(/^###\s*(.+)$/)&.captures&.first || "Sin título" %>
+      <%= button_to "Guardar receta",
+    recipes_path(
+      recipe: {
+        name: recipe_title,
+        content: message.content,
+        category: "IA",
+        chat_id: @chat.id
+        }
+      ),
+    method: :post,
+    class: "btn btn-success mt-2" %>
+      <% end %>
     </li>
   <% end %>
 </ul>

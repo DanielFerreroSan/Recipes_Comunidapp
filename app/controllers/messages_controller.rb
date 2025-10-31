@@ -10,11 +10,18 @@ class MessagesController < ApplicationController
         ruby_llm_chat = RubyLLM.chat
         response = ruby_llm_chat.with_instructions(user_prompt(current_user)).ask("Tengo estos ingredientes: #{@message.content}")  #acá agrego el user prompt definido en el método privado
 
+        messages_history = @chat.messages.map do |m|    #con este método mantengo un historial de conversaciones
+        { role: m.role, content: m.content }
+        end
+
         ia_user = User.find_or_create_by(email: "ia@recipes.com") do |u|  #este método genera un usuario de IA
         u.password = SecureRandom.hex(10)
         end
 
       @chat.messages.create(content: response.content, role: "assistant", user_id: nil)  #Guardo la respuesta
+
+
+
       redirect_to chat_path(@chat), notice: "Receta generada correctamente."
 
     else
@@ -60,10 +67,11 @@ def user_prompt(user)
     - Momento del día: #{time_of_day}
 
     Tu tarea:
-    - Sugiere una receta apropiada para el momento del día y usando los ingredientes que el usuario te dará, no utilices ingredientes que el usuario no especifique.
-    - Considera sus datos y restricciones al elegir los ingredientes y métodos de cocción.
-    - Da las instrucciones paso a paso en formato Markdown.
-    - Si el plato no es adecuado para las restricciones del usuario, ofrece una alternativa más segura o saludable.
-  PROMPT
+      - Sugiere **solo una** receta apropiada para el momento del día usando **solo** los ingredientes que el usuario indique.
+      - Si un ingrediente común no está disponible, sugiere alternativas saludables.
+      - Da las instrucciones paso a paso en formato Markdown.
+      - Si el plato no es adecuado para las restricciones del usuario, ofrece una alternativa segura.
+      - **Empieza siempre tu respuesta con un título en formato: `### [Nombre de la receta]`.**
+      PROMPT
 end
 end

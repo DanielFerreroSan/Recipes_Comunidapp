@@ -16,6 +16,6 @@ Rails.application.routes.draw do
   end
 
   # Recetas (pueden estar asociadas a un mensaje o guardadas por el usuario)
-  resources :recipes, only: [:index, :show, :destroy]
+  resources :recipes, only: [:index, :show, :destroy, :create]
 
 end
