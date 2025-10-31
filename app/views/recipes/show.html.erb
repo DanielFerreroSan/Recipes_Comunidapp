@@ -1,8 +1,17 @@
-<h1>Recipes#show</h1>
-<p>Find me in app/views/recipes/show.html.erb</p>
+<h1><%= @recipe.name %></h1>
 
-<h1><%= @recipe.title %></h1>
-<p><%= @recipe.description %></p>
-<p><strong>Calorías:</strong> <%= @recipe.calories %></p>
+<div class="card p-4 mb-4">
+  <p><strong>Categoría:</strong> <%= @recipe.category %></p>
+  <p><strong>Ingredientes:</strong></p>
+  <p><%= simple_format(@recipe.ingredients) %></p>
 
-<%= link_to "Volver a mis recetas", recipes_path, class: "btn btn-secondary" 
+  <p><strong>Preparación:</strong></p>
+  <p><%= simple_format(@recipe.content) %></p>
+</div>
+
+<div class="mt-3">
+  <%= link_to "Volver a mis recetas", recipes_path, class: "btn btn-secondary" %>
+  <%= link_to "Eliminar receta", recipe_path(@recipe),
+        data: { turbo_method: :delete, turbo_confirm: "¿Seguro que deseas eliminar esta receta?" },
+        class: "btn btn-danger" %>
+</div>
