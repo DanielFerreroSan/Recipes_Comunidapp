@@ -1,0 +1,8 @@
+<h1>Recipes#show</h1>
+<p>Find me in app/views/recipes/show.html.erb</p>
+
+<h1><%= @recipe.title %></h1>
+<p><%= @recipe.description %></p>
+<p><strong>Calorías:</strong> <%= @recipe.calories %></p>
+
+<%= link_to "Volver a mis recetas", recipes_path, class: "btn btn-secondary" 
