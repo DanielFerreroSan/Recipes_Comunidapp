@@ -7,25 +7,30 @@ class MessagesController < ApplicationController
     @message.role = "user"
 
     if @message.save
-        ruby_llm_chat = RubyLLM.chat
+      ruby_llm_chat = RubyLLM.chat
 
-        messages_history = @chat.messages.map do |m|    #con este método mantengo un historial de conversaciones
-        { role: m.role, content: m.content }
-        end
+      messages_history = @chat.messages.map do |m|    #con este método mantengo un historial de conversaciones
+      { role: m.role, content: m.content }
+      end
 
-        response = ruby_llm_chat.with_instructions(user_prompt(current_user)).ask(messages_history + [{ role: "user", content: "Tengo estos ingredientes: #{@message.content}" }])  #acá agrego el user prompt definido en el método privado
-
-
-
-        ia_user = User.find_or_create_by(email: "ia@recipes.com") do |u|  #este método genera un usuario de IA
-        u.password = SecureRandom.hex(10)
-        end
-
-      @chat.messages.create(content: response.content, role: "assistant", user_id: nil)  #Guardo la respuesta
+      response = ruby_llm_chat.with_instructions(user_prompt(current_user)).ask(messages_history + [{ role: "user", content: "Tengo estos ingredientes: #{@message.content}" }])  #acá agrego el user prompt definido en el método privado
 
 
 
-      redirect_to chat_path(@chat), notice: "Receta generada correctamente."
+      ia_user = User.find_or_create_by(email: "ia@recipes.com") do |u|  #este método genera un usuario de IA
+      u.password = SecureRandom.hex(10)
+      end
+
+      @assistant_message = @chat.messages.create(
+        content: response.content, role: "assistant", user_id: nil
+      )  #Guardo la respuesta
+
+
+      # redirect_to chat_path(@chat), notice: "Receta generada correctamente."
+      respond_to do |format|
+        format.turbo_stream
+        format.html { redirect_to @chat }
+      end
 
     else
       render "chats/show", status: :unprocessable_entity

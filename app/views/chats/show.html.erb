@@ -1,38 +1,24 @@
-<h1>Chat ##<%= @chat.id %></h1>
+<div class="container py-3">
+  <h1 class="h4 fw-bold text-center text-secondary mb-2">Chat: <%= @chat.title %></h1>
 
-<h2>Mensajes</h2>
-<ul>
-<% @messages.each do |message| %>
-    <li style="margin-bottom: 20px;">
-      <strong><%= message.user&.email || "IA" %>:</strong>
-      <div><%= simple_format(message.content) %></div>
+  <div id="chat-messages" class="p-3 border rounded bg-light mb-2"
+       style="max-height: 70vh; overflow-y: auto;">
+    <%= render @messages %>
+  </div>
 
-      <% if message.role == "assistant" && message.content.match(/^###\s*(.+)$/)&.captures&.first %>
-        <% # esta línea es para extraer el "titulo de la receta" %>
-        <% recipe_title = message.content.match(/^###\s*(.+)$/)&.captures&.first%>
-        <%= button_to "Guardar receta",
-          recipes_path(
-          recipe: {
-            name: recipe_title,
-            content: message.content,
-            category: "IA",
-            chat_id: @chat.id
-            }
-          ),
-        method: :post,
-        class: "btn btn-success mt-2" %>
-          <% end %>
-    </li>
-  <% end %>
-</ul>
+  <%= render "messages/form", chat: @chat, message: @message %>
+</div>
 
-<h3>Enviar un mensaje</h3>
-<%= form_with model: [@chat, @message], local: true do |form| %>
-  <p>
-    <%= form.label :content %><br>
-    <%= form.text_area :content %>
-  </p>
-  <p>
-    <%= form.submit "Enviar" %>
-  </p>
-<% end %>
+<script>
+  const chatBox = document.getElementById("chat-messages");
+  if (chatBox) {
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  document.addEventListener("turbo:after-stream-render", () => {
+    const chatBox = document.getElementById("chat-messages");
+    if (chatBox) {
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  });
+</script>
