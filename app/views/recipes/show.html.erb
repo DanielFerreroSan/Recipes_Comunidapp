@@ -1,17 +1,62 @@
-<h1><%= @recipe.name %></h1>
+<h1 class="mb-4 text-center fw-bold text-primary"><%= @recipe.name %></h1>
 
-<div class="card p-4 mb-4 card h-100 shadow-sm border-0 rounded-4" style="background-color: #f9f7f1;"">
-  <p><strong>Categoría:</strong> <%= @recipe.category %></p>
-  <p><strong>Ingredientes:</strong></p>
-  <p><%= simple_format(@recipe.ingredients) %></p>
+<div class="card p-4 mb-4 shadow-sm border-0 rounded-4 mx-auto" style="max-width: 700px; background-color: #f9f7f1;">
+  <p class="text-muted mb-2">
+    <i class="bi bi-tag"></i>
+    <strong>Categoría:</strong> <%= @recipe.category.presence || "Sin categoría" %>
+  </p>
 
-  <p><strong>Preparación:</strong></p>
-  <p><%= simple_format(@recipe.content) %></p>
+  <p class="text-secondary mb-3">
+    <strong>Ingredientes:</strong><br>
+    <%= simple_format(@recipe.ingredients) %>
+  </p>
+
+  <p class="text-secondary">
+    <strong>Preparación:</strong><br>
+    <%= simple_format(@recipe.content) %>
+  </p>
 </div>
 
-<div class="mt-3">
-  <%= link_to "Volver a mis recetas", recipes_path, class: "btn btn-secondary" %>
-  <%= link_to "Eliminar receta", recipe_path(@recipe),
-        data: { turbo_method: :delete, turbo_confirm: "¿Seguro que deseas eliminar esta receta?" },
-        class: "btn btn-danger" %>
+<div class="d-flex justify-content-center gap-3 mt-4">
+  <%= link_to "Volver", recipes_path, class: "btn btn-outline-secondary rounded-pill px-4" %>
+
+  <%= link_to "Compartir", "#",
+      class: "btn btn-outline-success rounded-pill px-4",
+      data: { action: "click->share#receta", nombre: @recipe.name, url: recipe_url(@recipe) } %>
+
+  <%= link_to "Eliminar", recipe_path(@recipe),
+      data: { turbo_method: :delete, turbo_confirm: "¿Seguro que deseas eliminar esta receta?" },
+      class: "btn btn-outline-danger rounded-pill px-4" %>
 </div>
+
+<script>
+  function compartirReceta(nombre, url) {
+    if (navigator.share) {
+      navigator.share({
+        title: nombre,
+        text: `Mira esta receta que encontré: ${nombre}`,
+        url: url
+      })
+      .then(() => console.log("Receta compartida con éxito"))
+      .catch((error) => console.log("Error al compartir:", error));
+    } else {
+      navigator.clipboard.writeText(url);
+      alert("🔗 Enlace copiado al portapapeles");
+    }
+  }
+
+  function initBotonesCompartir() {
+    document.querySelectorAll('[data-action="click->share#receta"]').forEach(btn => {
+      btn.removeEventListener("click", btn._shareListener);
+      btn._shareListener = event => {
+        event.preventDefault();
+        const nombre = btn.dataset.nombre;
+        const url = btn.dataset.url;
+        compartirReceta(nombre, url);
+      };
+      btn.addEventListener("click", btn._shareListener);
+    });
+  }
+
+  document.addEventListener("turbo:load", initBotonesCompartir);
+</script>
