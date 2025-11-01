@@ -6,17 +6,18 @@
       <%= message.user&.email || "IA" %>
     </small>
 
-    <div><%= simple_format(message.content) %></div>
+    <div><%= markdown(message.content) %></div>
 
     <% if message.role == "assistant" && message.content.match(/^###\s*(.+)$/)&.captures&.first %>
       <% recipe_title = message.content.match(/^###\s*(.+)$/)&.captures&.first %>
       <div class="mt-2 text-end">
+        <% cat = RubyLLM.chat.with_instructions("Lo más importante es que solo puede ser UNA palabra y NADA más").ask("Dame una categoría para la siguiente receta: #{message.content}") %>
         <%= button_to "💾 Guardar receta",
           recipes_path(
             recipe: {
               name: recipe_title,
               content: message.content,
-              category: "IA",
+              category: cat.content,
               chat_id: message.chat_id
             }
           ),
