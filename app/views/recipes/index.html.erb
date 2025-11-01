@@ -1,25 +1,55 @@
-<h1 class="mb-4">Mis Recetas</h1>
+<h1 class="mb-4 text-center fw-bold text-primary">Mis Recetas</h1>
+
+<div class="mb-3">
+  <%= form_with url: recipes_path, method: :get, local: true, class: "d-flex align-items-center flex-wrap gap-2 justify-content-center" do |form| %>
+    <div class="d-flex align-items-center gap-2">
+      <%= form.label :category, "Categoría:", class: "me-2 fw-semibold text-secondary" %>
+      <%= form.select :category, options_for_select(@categories, params[:category]), include_blank: "Todas", class: "form-select rounded-4 border-1" %>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <%= form.label :date, "Fecha:", class: "me-2 fw-semibold text-secondary" %>
+      <%= form.date_field :date, value: params[:date], class: "form-control rounded-4 border-1" %>
+    </div>
+
+    <%= form.submit "Filtrar", class: "btn btn-primary border-0 rounded-4 px-4" %>
+  <% end %>
+</div>
 
 <% if @recipes.any? %>
-  <div class="row">
+  <div class="row justify-content-center">
     <% @recipes.each do |recipe| %>
       <div class="col-md-6 col-lg-4 mb-4">
-        <div class="card h-100 shadow rounded-4 border-0" style="background-color: #f3f0e5ff;">
+        <div class="card h-100 shadow-sm border-0 rounded-4" style="background-color: #f9f7f1;">
           <div class="card-body">
-            <h4 class="card-title"><%= link_to recipe.name, recipe_path(recipe), class: "text-decoration-none text-dark" %></h4>
-            <p class="card-text text-muted"><strong>Categoría:</strong> <%= recipe.category.presence || "Sin categoría" %></p>
-            <p><%= truncate(recipe.content, length: 100, separator: ' ') %></p>
+            <h4 class="card-title mb-2">
+              <%= link_to recipe.name, recipe_path(recipe), class: "text-decoration-none text-dark fw-semibold" %>
+            </h4>
+
+            <p class="text-muted mb-2">
+              <i class="bi bi-tag"></i>
+              <strong>Categoría:</strong>
+              <%= recipe.category.presence || "Sin categoría" %>
+            </p>
+
+            <p class="text-secondary">
+              <%= truncate(recipe.content, length: 100, separator: ' ') %>
+            </p>
           </div>
+
           <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
-            <%= link_to "Ver", recipe_path(recipe), class: "btn btn-primary btn-sm rounded-5" %>
+            <%= link_to "Ver", recipe_path(recipe),
+                class: "btn btn-sm btn-outline-primary rounded-pill px-3" %>
             <%= link_to "Eliminar", recipe_path(recipe),
-                  data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro de eliminar esta receta?" },
-                  class: "btn btn-danger btn-sm rounded-5 " %>
+                data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro de eliminar esta receta?" },
+                class: "btn btn-sm btn-outline-danger rounded-pill px-3" %>
           </div>
         </div>
       </div>
     <% end %>
   </div>
 <% else %>
-  <p>No tienes recetas guardadas todavía.</p>
+  <div class="text-center text-muted fs-5 mt-5">
+    <p>No tienes recetas guardadas todavía.</p>
+  </div>
 <% end %>
