@@ -61,31 +61,3 @@
     <p>No tienes recetas guardadas todavía.</p>
   </div>
 <% end %>
-
-<script>
-  function compartirReceta(nombre, url) {
-    if (navigator.share) {
-      navigator.share({
-        title: nombre,
-        text: `Mira esta receta que encontré: ${nombre}`,
-        url: url
-      })
-      .then(() => console.log("Receta compartida con éxito"))
-      .catch((error) => console.log("Error al compartir:", error));
-    } else {
-      navigator.clipboard.writeText(url);
-      alert("🔗 Enlace copiado al portapapeles");
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll('[data-action="click->share#receta"]').forEach(btn => {
-      btn.addEventListener("click", event => {
-        event.preventDefault();
-        const nombre = btn.dataset.nombre;
-        const url = btn.dataset.url;
-        compartirReceta(nombre, url);
-      });
-    });
-  });
-</script>
