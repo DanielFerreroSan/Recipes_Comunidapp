@@ -1,9 +1,38 @@
-<h1>Chats</h1>
+<div class="container mt-4">
+  <h1 class="text-center mb-4">Tus últimos chats</h1>
 
-<ul>
-  <% @chats.each do |chat| %>
-    <li>
-      <%= link_to "Chat ##{chat.id}", chat_path(chat) %>
-    </li>
-  <% end %>
-</ul>
+  <div class="row g-4">
+    <% @chats.each do |chat| %>
+      <% first_message = chat.messages.order(:created_at).first %>
+      <% last_message = chat.messages.order(:created_at).last %>
+
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body">
+            <h5 class="card-title text-truncate">
+              <%= link_to (first_message&.content&.truncate(50) || "Chat ##{chat.id}"), chat_path(chat), class: "stretched-link text-decoration-none text-dark" %>
+            </h5>
+
+            <% if last_message && chat.messages.size > 1 %>
+              <p class="card-text text-muted mb-2">
+                Último: "<%= last_message.content.truncate(60) %>"
+              </p>
+            <% else %>
+              <p class="card-text text-muted mb-2">Sin mensajes recientes</p>
+            <% end %>
+
+            <p class="card-text">
+              <small class="text-secondary">
+                Creado el <%= chat.created_at.strftime("%d/%m/%Y %H:%M") %>
+              </small>
+            </p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="text-center mt-4">
+    <%= link_to "Crear nuevo chat", chats_path, data: { turbo_method: :post }, class: "btn btn-success" %>
+  </div>
+</div>
