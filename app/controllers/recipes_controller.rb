@@ -3,7 +3,18 @@ class RecipesController < ApplicationController
   before_action :set_recipe, only: [:show, :destroy]
 
   def index
+    @categories = current_user.recipes.distinct.pluck(:category)
     @recipes = current_user.recipes
+
+    # Filtrar por categoría (si hay parámetro)
+    if params[:category].present?
+      @recipes = @recipes.where(category: params[:category])
+    end
+
+    # Filtrar por fecha (si hay parámetro)
+    if params[:date].present?
+      @recipes = @recipes.where("DATE(created_at) = ?", params[:date])
+    end
   end
 
   def show

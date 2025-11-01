@@ -1,6 +1,6 @@
 <h1><%= @recipe.name %></h1>
 
-<div class="card p-4 mb-4">
+<div class="card p-4 mb-4 card h-100 shadow-sm border-0 rounded-4" style="background-color: #f9f7f1;"">
   <p><strong>Categoría:</strong> <%= @recipe.category %></p>
   <p><strong>Ingredientes:</strong></p>
   <p><%= simple_format(@recipe.ingredients) %></p>
