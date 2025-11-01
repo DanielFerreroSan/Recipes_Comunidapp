@@ -1,7 +1,20 @@
-<h1>Bienvenido a Recipes by Comunidapp</h1>
-<p>
-  En esta plataforma podrás crear tus recetas diseñadas a partir de tu información personal
-  y preferencias dietéticas, así como compartirlas con otros usuarios.
-</p>
-<%= button_to "Crear nuevo chat", chats_path, method: :post, class: "btn btn-primary" %>
-
+<div class="position-relative w-100" style="height:100vh; overflow:hidden;">
+  <video class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
+    src="https://videos.pexels.com/video-files/3196344/3196344-uhd_2560_1440_25fps.mp4"
+    autoplay muted loop playsinline></video>
+  <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-75"></div>
+  <div class="container position-relative d-flex align-items-center justify-content-center text-center h-100">
+    <div class="text-white">
+      <h1 class="fw-bold display-5 mb-4">
+        DESCUBRE LAS RECETAS PERFECTAS PARA TI
+      </h1>
+      <p class="fs-4 mb-5">
+        En <strong>Recipes by Comunidapp</strong>, creamos recetas personalizadas basadas en tu información
+        y preferencias dietéticas. ¡Comienza tu viaje culinario hoy mismo!
+      </p>
+      <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mb-5">
+        <%= button_to "Crear nuevo chat", chats_path, method: :post, class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+</div>

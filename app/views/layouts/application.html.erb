@@ -16,11 +16,15 @@
       <%= render "shared/navbar" %> <!-- 👈 Add this for navbar -->
     </header>
 
+    <% if current_page?(root_path) %>
+      <%= yield %>
+    <% else %>
     <div class="container">
       <main id="main-content">
         <%= yield %>
       </main>
     </div>
+    <% end %>
     <%= render "shared/flashes" %>
   </body>
 </html>
