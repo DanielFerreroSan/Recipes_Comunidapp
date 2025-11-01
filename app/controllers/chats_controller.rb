@@ -25,6 +25,12 @@ class ChatsController < ApplicationController
     end
   end
 
+  def destroy
+    @chat = Chat.find(params[:id])
+    @chat.destroy
+    redirect_to chats_path, notice: "Chat eliminado correctamente."
+  end
+
   private
 
   def chat_params
