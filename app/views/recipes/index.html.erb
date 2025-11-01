@@ -37,9 +37,17 @@
             </p>
           </div>
 
-          <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
+         <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center">
             <%= link_to "Ver", recipe_path(recipe),
                 class: "btn btn-sm btn-outline-primary rounded-pill px-3" %>
+
+            <button class="btn btn-sm btn-outline-success rounded-pill px-3"
+                    data-action="click->share#receta"
+                    data-nombre="<%= recipe.name %>"
+                    data-url="<%= recipe_url(recipe) %>">
+              <i class="bi bi-share"></i> Compartir
+            </button>
+
             <%= link_to "Eliminar", recipe_path(recipe),
                 data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro de eliminar esta receta?" },
                 class: "btn btn-sm btn-outline-danger rounded-pill px-3" %>
