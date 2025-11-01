@@ -8,11 +8,14 @@ class MessagesController < ApplicationController
 
     if @message.save
         ruby_llm_chat = RubyLLM.chat
-        response = ruby_llm_chat.with_instructions(user_prompt(current_user)).ask("Tengo estos ingredientes: #{@message.content}")  #acá agrego el user prompt definido en el método privado
 
         messages_history = @chat.messages.map do |m|    #con este método mantengo un historial de conversaciones
         { role: m.role, content: m.content }
         end
+
+        response = ruby_llm_chat.with_instructions(user_prompt(current_user)).ask(messages_history + [{ role: "user", content: "Tengo estos ingredientes: #{@message.content}" }])  #acá agrego el user prompt definido en el método privado
+
+
 
         ia_user = User.find_or_create_by(email: "ia@recipes.com") do |u|  #este método genera un usuario de IA
         u.password = SecureRandom.hex(10)
@@ -40,38 +43,37 @@ class MessagesController < ApplicationController
   end
 
 
-def user_prompt(user)
-  age = user.age.presence || "no especificada"
-  gender = user.gender.presence || "no especificado"
-  weight = user.weight.present? ? "#{user.weight} kg" : "no especificado"
-  height = user.height.present? ? "#{user.height} cm" : "no especificada"
-  activity = user.activity.presence || "no especificado"
-  restrictions = user.restrictions.presence || "ninguna restricción"
-  time_of_day = case Time.current.hour                                 #con esta función determino si va a realizar un desayuno/almuerzo/merienda/cena
-                when 5..10 then "desayuno"
-                when 11..16 then "almuerzo"
-                when 17..19 then "merienda"
-                else "cena"
-                end
+  def user_prompt(user)
+    age = user.age.presence || "no especificada"
+    gender = user.gender.presence || "no especificado"
+    weight = user.weight.present? ? "#{user.weight} kg" : "no especificado"
+    height = user.height.present? ? "#{user.height} cm" : "no especificada"
+    activity = user.activity.presence || "no especificado"
+    restrictions = user.restrictions.presence || "ninguna restricción"
+    time_of_day = case Time.current.hour                                 #con esta función determino si va a realizar un desayuno/almuerzo/merienda/cena
+                  when 5..10 then "desayuno"
+                  when 11..16 then "almuerzo"
+                  when 17..19 then "merienda"
+                  else "cena"
+                  end
 
-  <<~PROMPT
-    Eres un chef experimentado especializado en improvisar platos saludables con los ingredientes disponibles.
+    <<~PROMPT
+      Eres un chef experimentado especializado en improvisar platos saludables con los ingredientes disponibles.
 
-    Información del usuario:
-    - Edad: #{age}
-    - Género: #{gender}
-    - Peso: #{weight}
-    - Altura: #{height}
-    - Nivel de actividad: #{activity}
-    - Restricciones alimentarias: #{restrictions}
-    - Momento del día: #{time_of_day}
+      Información del usuario:
+      - Edad: #{age}
+      - Género: #{gender}
+      - Peso: #{weight}
+      - Altura: #{height}
+      - Nivel de actividad: #{activity}
+      - Restricciones alimentarias: #{restrictions}
+      - Momento del día: #{time_of_day}
 
-    Tu tarea:
-      - Sugiere **solo una** receta apropiada para el momento del día usando **solo** los ingredientes que el usuario indique.
-      - Si un ingrediente común no está disponible, sugiere alternativas saludables.
-      - Da las instrucciones paso a paso en formato Markdown.
-      - Si el plato no es adecuado para las restricciones del usuario, ofrece una alternativa segura.
-      - **Empieza siempre tu respuesta con un título en formato: `### [Nombre de la receta]`.**
-      PROMPT
-end
+      Tu tarea:
+        - Sugiere **solo una** receta apropiada para el momento del día usando **solo** los ingredientes que el usuario indique.
+        - Da las instrucciones paso a paso en formato Markdown.
+        - Si el plato no es adecuado para las restricciones del usuario, ofrece una alternativa segura.
+        - **Empieza siempre tu respuesta con un título en formato: `### [Nombre de la receta]`.**
+        PROMPT
+  end
 end
