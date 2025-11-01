@@ -1,0 +1,28 @@
+<% is_assistant = message.role == "assistant" %>
+<div class="d-flex mb-3 <%= is_assistant ? 'justify-content-end' : '' %>">
+  <div class="p-3 rounded shadow-sm"
+       style="max-width: 80%; background-color: <%= is_assistant ? '#ffffff' : '#d1e7dd' %>;">
+    <small class="fw-bold d-block mb-1 text-muted">
+      <%= message.user&.email || "IA" %>
+    </small>
+
+    <div><%= simple_format(message.content) %></div>
+
+    <% if message.role == "assistant" && message.content.match(/^###\s*(.+)$/)&.captures&.first %>
+      <% recipe_title = message.content.match(/^###\s*(.+)$/)&.captures&.first %>
+      <div class="mt-2 text-end">
+        <%= button_to "💾 Guardar receta",
+          recipes_path(
+            recipe: {
+              name: recipe_title,
+              content: message.content,
+              category: "IA",
+              chat_id: message.chat_id
+            }
+          ),
+          method: :post,
+          class: "btn btn-success btn-sm" %>
+      </div>
+    <% end %>
+  </div>
+</div>

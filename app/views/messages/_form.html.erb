@@ -1,0 +1,4 @@
+<%= form_with model: [chat, message], data: { turbo_frame: "chat-frame" }, class: "d-flex gap-2", id: "message_form" do |form| %>
+  <%= form.text_area :content, rows: 2, class: "form-control", placeholder: "Escribe tu mensaje..." %>
+  <%= form.submit "Enviar", class: "btn btn-primary px-4" %>
+<% end %>
