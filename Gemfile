@@ -79,3 +79,5 @@ gem "ruby_llm", "~> 1.6.4"
 
 gem "kramdown"
 
+gem "cloudinary"
+gem "image_processing", "~> 1.2"

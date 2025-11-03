@@ -1,4 +1,5 @@
-<%= form_with model: [chat, message], data: { turbo_frame: "chat-frame" }, class: "d-flex gap-2", id: "message_form" do |form| %>
-  <%= form.text_area :content, rows: 2, class: "form-control", placeholder: "Escribe tu mensaje..." %>
-  <%= form.submit "Enviar", class: "btn btn-primary px-4" %>
+<%= simple_form_for [chat, message], html: { data: { turbo_frame: "chat-frame" }, class: "d-flex gap-2", id: "message_form" } do |f| %>
+  <%= f.input :content, as: :text, input_html: { rows: 2, class: "form-control", placeholder: "Escribe tu mensaje..." }, label: false %>
+  <%= f.input :file, as: :file, label: "Sube tu archivo (PDF, imagen o audio)" %>
+  <%= f.button :submit, "Enviar", class: "btn btn-primary px-4" %>
 <% end %>
