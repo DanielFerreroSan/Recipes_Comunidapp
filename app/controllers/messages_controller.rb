@@ -37,16 +37,29 @@ class MessagesController < ApplicationController
     params.require(:message).permit(:content, :file)
   end
 
-  # Procesa archivos PDF o imágenes
-  def process_file(file)
-    if file.content_type == "application/pdf"
-      ruby_llm_chat = RubyLLM.chat(model: "gemini-2.0-flash")
-      ruby_llm_chat.with_instructions(user_prompt(current_user))
-      @response = ruby_llm_chat.ask(@message.content, with: { pdf: url_for(file) })
-    elsif file.image?
-      ruby_llm_chat = RubyLLM.chat(model: "gpt-4o") # modelo con visión
-      ruby_llm_chat.with_instructions(user_prompt(current_user))
-      @response = ruby_llm_chat.ask(@message.content, with: { image: file.url })
+
+  def process_file(file)    # Procesa archivos PDF, imágenes o audios
+      if file.content_type == "application/pdf"
+        ruby_llm_chat = RubyLLM.chat(model: "gemini-2.0-flash")
+        ruby_llm_chat.with_instructions(user_prompt(current_user))
+        @response = ruby_llm_chat.ask(@message.content, with: { pdf: url_for(file) })
+      elsif file.image?
+        ruby_llm_chat = RubyLLM.chat(model: "gpt-4o") # modelo con visión
+        ruby_llm_chat.with_instructions(user_prompt(current_user))
+        @response = ruby_llm_chat.ask(@message.content, with: { image: file.url })
+      elsif file.audio?
+        @ruby_llm_chat = RubyLLM.chat(model: "gpt-4o-audio-preview")
+        Dir.mktmpdir do |dir|
+          require 'open-uri'
+          temp_file_path = File.join(dir, @message.file.filename.to_s)
+
+          URI.open(@message.file.url) do |remote_file|
+            File.open(temp_file_path, 'wb') do |file|
+              file.write(remote_file.read)
+            end
+          end
+        @response = @ruby_llm_chat.ask(@message.content, with: {audio: temp_file_path})
+      end
     end
   end
 
@@ -58,21 +71,20 @@ class MessagesController < ApplicationController
   end
 
   def user_prompt(user)
-    age = user.age.presence || "no especificada"
-    gender = user.gender.presence || "no especificado"
-    weight = user.weight.present? ? "#{user.weight} kg" : "no especificado"
-    height = user.height.present? ? "#{user.height} cm" : "no especificada"
-    activity = user.activity.presence || "no especificado"
-    restrictions = user.restrictions.presence || "ninguna restricción"
-    time_of_day = case Time.current.hour                                 #con esta función determino si va a realizar un desayuno/almuerzo/merienda/cena
-                  when 5..10 then "desayuno"
-                  when 11..16 then "almuerzo"
-                  when 17..19 then "merienda"
-                  else "cena"
-                  end
+  age = user.age.presence || "no especificada"
+  gender = user.gender.presence || "no especificado"
+  weight = user.weight.present? ? "#{user.weight} kg" : "no especificado"
+  height = user.height.present? ? "#{user.height} cm" : "no especificada"
+  activity = user.activity.presence || "no especificado"
+  restrictions = user.restrictions.presence || "ninguna restricción"
+  time_of_day = case Time.current.hour
+                when 5..10 then "desayuno"
+                when 11..16 then "almuerzo"
+                when 17..19 then "merienda"
+                else "cena"
+                end
 
-
-        <<~PROMPT
+  <<~PROMPT
       Eres un chef experimentado, con amplios conocimientos en nutrición y gastronomía. Eres empático, amable y sabes mantener conversaciones naturales sobre cualquier tema cotidiano.
 
       **Tu objetivo principal** es mantener una charla fluida, respetuosa y humana, sin sonar automatizado ni robótico.
@@ -119,11 +131,22 @@ class MessagesController < ApplicationController
 
       ---
 
+      ### 🎧 Instrucciones para audios
+
+      - El usuario puede enviar **mensajes de voz** o **audios hablados** en lugar de texto.
+      - Interpreta el contenido del audio igual que si fuera texto escrito (por ejemplo, si dice “crea una receta con eso” o describe ingredientes, actúa en consecuencia).
+      - **No menciones que el mensaje proviene de un audio** ni uses frases como “en el audio dijiste...”.
+      - Si el audio contiene una receta, ingredientes o una consulta cotidiana, responde con naturalidad siguiendo las mismas reglas anteriores.
+      - Mantén siempre un tono empático y cercano, como si estuvieras conversando con alguien en persona.
+
+      ---
+
       ### 📋 Reglas finales
       - No incluyas texto fuera del formato ni frases del tipo “receta generada por IA”.
       - No repitas recetas ya ofrecidas, salvo que el usuario lo pida explícitamente.
       - Si el usuario solo conversa (sin pedir receta), responde como un humano empático que disfruta hablar de cocina y vida cotidiana.
-      - Si hay ambigüedad (“crea una receta con eso”), **usa el contexto visual o textual más reciente sin volver a pedirlo**, salvo que sea realmente imposible inferirlo.
+      - Si hay ambigüedad (“crea una receta con eso”), **usa el contexto visual, auditivo o textual más reciente sin volver a pedirlo**, salvo que sea realmente imposible inferirlo.
       PROMPT
   end
+
 end
