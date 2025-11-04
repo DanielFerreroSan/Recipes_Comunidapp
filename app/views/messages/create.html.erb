@@ -2,6 +2,6 @@
 
 <%= simple_form_for([@chat, @message]) do |f| %>
   <%= f.input :content, as: :text, label: "Escribí tu mensaje", input_html: { rows: 3 } %>
+
   <%= f.button :submit, "Enviar mensaje" %>
 <% end %>
-
