@@ -10,11 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_31_195425) do
-  create_schema "_heroku"
-
+ActiveRecord::Schema[7.1].define(version: 2025_11_01_160911) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "pg_stat_statements"
   enable_extension "plpgsql"
 
   create_table "chats", force: :cascade do |t|
@@ -44,6 +41,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_31_195425) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "chat_id"
+    t.string "image_url"
     t.index ["chat_id"], name: "index_recipes_on_chat_id"
   end
 

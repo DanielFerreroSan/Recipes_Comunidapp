@@ -1,44 +1,43 @@
-<div class="container mt-4">
-  <h1 class="text-center mb-4">Tus últimos chats</h1>
+<h1 class="mb-4 text-center fw-bold text-primary">Mis Chats</h1>
 
-  <div class="row g-4">
+<% if @chats.any? %>
+  <div class="row justify-content-center">
     <% @chats.each do |chat| %>
       <% first_message = chat.messages.order(:created_at).first %>
       <% last_message = chat.messages.order(:created_at).last %>
 
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm border-0 position-relative">
-
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm border-0 rounded-4" style="background-color: #f9f7f1;">
           <div class="card-body">
-            <h5 class="card-title text-truncate">
+            <h4 class="card-title mb-2">
               <%= link_to (first_message&.content&.truncate(50) || "Chat ##{chat.id}"),
                           chat_path(chat),
-                          class: "stretched-link text-decoration-none text-dark" %>
-            </h5>
+                          class: "text-decoration-none text-dark fw-semibold" %>
+            </h4>
 
             <% if last_message && chat.messages.size > 1 %>
-              <p class="card-text text-muted mb-2">
-                Último: "<%= last_message.content.truncate(60) %>"
+              <p class="text-muted mb-2">
+                <i class="bi bi-chat-text"></i>
+                <strong>Último mensaje:</strong>
+                <%= last_message.content.truncate(60) %>
               </p>
             <% else %>
-              <p class="card-text text-muted mb-2">Sin mensajes recientes</p>
+              <p class="text-muted mb-2">Sin mensajes recientes</p>
             <% end %>
 
-            <p class="card-text mb-4">
-              <small class="text-secondary">
-                Creado el <%= chat.created_at.strftime("%d/%m/%Y %H:%M") %>
-              </small>
+            <p class="text-secondary">
+              <small>Creado el <%= chat.created_at.strftime("%d/%m/%Y %H:%M") %></small>
             </p>
           </div>
 
-          <!-- Ícono eliminar fuera del card-body -->
-          <%= link_to chat_path(chat),
-                      data: { turbo_method: :delete, turbo_confirm: "¿Seguro que quieres eliminar este chat?" },
-                      class: "position-absolute bottom-0 end-0 m-3 text-secondary z-3",
-                      title: "Eliminar chat" do %>
-            <i class="fa fa-trash fa-lg"></i>
-          <% end %>
+          <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center">
+            <%= link_to "Abrir", chat_path(chat),
+                class: "btn btn-sm btn-outline-primary rounded-pill px-3" %>
 
+            <%= link_to "Eliminar", chat_path(chat),
+                data: { turbo_method: :delete, turbo_confirm: "¿Seguro que deseas eliminar este chat?" },
+                class: "btn btn-sm btn-outline-danger rounded-pill px-3" %>
+          </div>
         </div>
       </div>
     <% end %>
@@ -48,6 +47,15 @@
     <%= link_to "Crear nuevo chat",
                 chats_path,
                 data: { turbo_method: :post },
-                class: "btn btn-success" %>
+                class: "btn btn-success rounded-pill px-4" %>
   </div>
-</div>
+<% else %>
+  <div class="text-center text-muted fs-5 mt-5">
+    <p>No tienes chats guardados todavía.</p>
+
+    <%= link_to "Iniciar nuevo chat",
+                chats_path,
+                data: { turbo_method: :post },
+                class: "btn btn-success rounded-pill px-4 mt-3" %>
+  </div>
+<% end %>
