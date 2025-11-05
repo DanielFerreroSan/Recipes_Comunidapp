@@ -1,6 +1,8 @@
 <h1 class="mb-4 text-center fw-bold text-primary"><%= @recipe.name %></h1>
 
-<div class="card p-4 mb-4 shadow-sm border-0 rounded-4 mx-auto" style="max-width: 700px; background-color: #f9f7f1;">
+<div class="card p-4 mb-4 shadow-sm border-0 rounded-4 mx-auto" 
+     style="max-width: 700px; background-color: #f9f7f1;">
+
   <p class="text-muted mb-2">
     <i class="bi bi-tag"></i>
     <strong>Categoría:</strong> <%= @recipe.category.presence || "Sin categoría" %>
@@ -17,7 +19,41 @@
   </p>
 </div>
 
-<div class="d-flex justify-content-center gap-3 mt-4">
+<!-- 🔹 Calificación general y del usuario -->
+<div class="text-center mb-4">
+  <h5>⭐ Promedio general: <%= @recipe.average_rating %> / 5</h5>
+
+  <% if (user_rating = @recipe.rating_by(current_user)) %>
+    <p>Tu calificación:
+      <span style="color: gold; font-size: 1.4rem;">
+        <%= '★' * user_rating %><%= '☆' * (5 - user_rating) %>
+      </span>
+    </p>
+  <% else %>
+    <p class="text-muted">Aún no has calificado esta receta.</p>
+  <% end %>
+</div>
+
+<!-- 🔹 Formulario para calificar -->
+<div class="text-center mt-3">
+  <h5>Califica esta receta:</h5>
+
+  <%= form_with model: [@recipe, Rating.new], local: true do |form| %>
+    <div class="rating-stars mb-3">
+      <% 5.times do |i| %>
+        <label class="star" style="font-size: 2rem; color: #ddd; cursor: pointer;">
+          <input type="radio" name="rating[score]" value="<%= i + 1 %>" style="display: none;">
+          ★
+        </label>
+      <% end %>
+    </div>
+
+    <%= form.submit "Enviar calificación", class: "btn btn-warning rounded-pill px-4" %>
+  <% end %>
+</div>
+
+<!-- 🔹 Botones de acción -->
+<div class="d-flex justify-content-center gap-3 mt-5">
   <%= link_to "Volver", recipes_path, class: "btn btn-outline-secondary rounded-pill px-4" %>
 
   <%= link_to "Compartir", "#",
@@ -29,16 +65,16 @@
       class: "btn btn-outline-danger rounded-pill px-4" %>
 </div>
 
+<!-- 🔹 Scripts -->
 <script>
+  // Compartir receta
   function compartirReceta(nombre, url) {
     if (navigator.share) {
       navigator.share({
         title: nombre,
         text: `Mira esta receta que encontré: ${nombre}`,
         url: url
-      })
-      .then(() => console.log("Receta compartida con éxito"))
-      .catch((error) => console.log("Error al compartir:", error));
+      }).catch(console.error);
     } else {
       navigator.clipboard.writeText(url);
       alert("🔗 Enlace copiado al portapapeles");
@@ -50,13 +86,30 @@
       btn.removeEventListener("click", btn._shareListener);
       btn._shareListener = event => {
         event.preventDefault();
-        const nombre = btn.dataset.nombre;
-        const url = btn.dataset.url;
-        compartirReceta(nombre, url);
+        compartirReceta(btn.dataset.nombre, btn.dataset.url);
       };
       btn.addEventListener("click", btn._shareListener);
     });
   }
 
-  document.addEventListener("turbo:load", initBotonesCompartir);
+  // Estrellas interactivas
+  function initRatingStars() {
+    document.querySelectorAll('.star').forEach((star, index, stars) => {
+      star.addEventListener('mouseover', () => {
+        stars.forEach((s, i) => s.style.color = i <= index ? 'gold' : '#ddd');
+      });
+      star.addEventListener('mouseout', () => {
+        const selected = document.querySelector('input[name="rating[score]"]:checked');
+        stars.forEach((s, i) => s.style.color = selected && i < selected.value ? 'gold' : '#ddd');
+      });
+      star.addEventListener('click', () => {
+        stars.forEach((s, i) => s.style.color = i <= index ? 'gold' : '#ddd');
+      });
+    });
+  }
+
+  document.addEventListener("turbo:load", () => {
+    initBotonesCompartir();
+    initRatingStars();
+  });
 </script>

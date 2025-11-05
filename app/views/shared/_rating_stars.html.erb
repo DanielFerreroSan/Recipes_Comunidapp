@@ -1,0 +1,13 @@
+<div class="rating d-flex align-items-center">
+  <% avg = recipe.average_rating.round %>
+
+  <% 5.times do |i| %>
+    <% if i < avg %>
+      <i class="bi bi-star-fill text-warning me-1" style="font-size: 1.2rem;"></i>
+    <% else %>
+      <i class="bi bi-star text-secondary me-1" style="font-size: 1.2rem;"></i>
+    <% end %>
+  <% end %>
+
+  <span class="text-muted small ms-2"><%= recipe.average_rating %> / 5</span>
+</div>

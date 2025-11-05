@@ -13,7 +13,7 @@ class ChatsController < ApplicationController
   def create
     puts params
     @chat = Chat.new
-    @chat.title = "Unknown Title"
+    @chat.title = "nuevo"
     @chat.user = current_user
 
     # @chat = current_user.chats.build(chat_params)
