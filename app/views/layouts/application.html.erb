@@ -8,6 +8,7 @@
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <%= yield :stylesheets %>
   </head>
 
   <body>
@@ -19,11 +20,9 @@
     <% if current_page?(root_path) %>
       <%= yield %>
     <% else %>
-    <div class="container">
-      <main id="main-content">
+      <main id="main-content" class="<%= content_for?(:full_width) ? 'p-0 m-0' : 'container' %>">
         <%= yield %>
       </main>
-    </div>
     <% end %>
     <%= render "shared/flashes" %>
   </body>

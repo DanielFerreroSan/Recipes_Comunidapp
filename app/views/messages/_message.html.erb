@@ -1,33 +1,40 @@
 <% is_assistant = message.role == "assistant" %>
-<div class="d-flex mb-3 <%= is_assistant ? 'justify-content-end' : '' %>">
-  <div class="p-3 rounded shadow-sm"
-       style="max-width: 80%; background-color: <%= is_assistant ? '#ffffff' : '#d1e7dd' %>;">
-    <small class="fw-bold d-block mb-1 text-muted">
-      <%= message.user&.email || "IA" %>
-    </small>
+<div class="message <%= is_assistant ? 'assistant' : 'user' %>">
+  <div class="avatar">
+    <% if is_assistant %>
+      <div class="avatar-circle assistant-avatar">IA</div>
+    <% else %>
+      <div class="avatar-circle user-avatar">U</div>
+    <% end %>
+  </div>
 
-    <div><%= markdown(message.content) %></div>
+  <div class="bubble-container">
+    <div class="bubble">
+      <%= markdown(message.content) %>
 
-    <% if message.role == "assistant" && message.content.match(/^###\s*(.+)$/)&.captures&.first %>
-      <% recipe_title = message.content.match(/^###\s*(.+)$/)&.captures&.first %>
-      <div class="mt-2 text-end">
-        <% cat = RubyLLM.chat.with_instructions("Lo más importante es que solo puede ser UNA palabra y NADA más").ask("Dame una categoría para la siguiente receta: #{message.content}") %>
-        <%= button_to "💾 Guardar receta",
-          recipes_path(
-            recipe: {
+      <% if message.file.attached? %>
+        <div class="mt-2">
+          <strong>Archivo:</strong>
+          <%= link_to message.file.filename, rails_blob_path(message.file, disposition: "attachment") %>
+        </div>
+      <% end %>
+
+      <% if is_assistant && message.content.match(/^###\s*(.+)$/)&.captures&.first %>
+        <% recipe_title = message.content.match(/^###\s*(.+)$/)&.captures&.first %>
+        <% cat = RubyLLM.chat.with_instructions("Una sola palabra y nada más").ask("Dame una categoría para la receta: #{message.content}") %>
+        <div class="mt-2 text-end">
+          <%= button_to "💾 Guardar receta",
+            recipes_path(recipe: {
               name: recipe_title,
               content: message.content,
               category: cat.content,
               chat_id: message.chat_id
-            }
-          ),
-          method: :post,
-          class: "btn btn-success btn-sm" %>
-      </div>
-    <% end %>
-    <% if message.file.attached? %>
-      <strong>File:</strong>
-      <%= link_to message.file.filename, rails_blob_path(message.file, disposition: "attachment") %>
-    <% end %>
+            }),
+            method: :post,
+            class: "btn btn-success btn-sm" %>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>
+
