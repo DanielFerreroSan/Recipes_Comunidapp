@@ -23,19 +23,21 @@
 .btn-danger:hover {
   background-color: #ffffff;   /* rojo más oscuro al pasar el mouse */
   border-color: #d62828;
-  transform: translateY(-5px);
+  transform: translateY(-2px);
 }
 
-.btn.primay {
-  background-color: #15055d;   /* rojo personalizado */
-  border-color: #4239e6;
-  border-radius: 12px;         /* esquinas curvas */
+.btn.btn-primary {
+  background-color: #ffffff;   /* rojo personalizado */
+  color:#0D6EFD;
+  border-color: #0D6EFD;
+  border-radius: 20px;         /* esquinas curvas */
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   transition: all 0.2s ease-in-out;
 }
 
 .btn-primary:hover {
-  background-color: #021052;   /* rojo más oscuro al pasar el mouse */
+  background-color: #0D6EFD;   /* rojo más oscuro al pasar el mouse */
   border-color: #15106e;
-  transform: translateY(-5px);
+  color: white;
+  transform: translateY(-2px);
 }

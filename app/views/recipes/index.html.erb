@@ -2,12 +2,20 @@
 
 <div class="mb-3">
   <%= form_with url: recipes_path, method: :get, local: true, class: "d-flex align-items-center flex-wrap gap-2 justify-content-center" do |form| %>
+
+    <!-- Filtro por categoría -->
     <div class="d-flex align-items-center gap-2">
       <%= form.label :category, "Categoría:", class: "me-2 fw-semibold text-secondary" %>
       <%= form.select :category, options_for_select(@categories, params[:category]), include_blank: "Todas", class: "form-select rounded-4 border-1" %>
     </div>
 
-    <%= form.submit "Filtrar", class: "btn btn-primary border-0 rounded-4 px-4" %>
+    <!-- Filtro por rating -->
+    <div class="d-flex align-items-center gap-2">
+      <%= form.label :rating, "Rating mínimo:", class: "me-2 fw-semibold text-secondary" %>
+      <%= form.select :rating, options_for_select((1..5).to_a, params[:rating]), include_blank: "Todos", class: "form-select rounded-4 border-1" %>
+    </div>
+
+    <%= form.submit "Filtrar", class: "btn btn-primary" %>
   <% end %>
 </div>
 
@@ -27,13 +35,23 @@
               <%= recipe.category.presence || "Sin categoría" %>
             </p>
 
-            <p class="text-secondary">
+            <p class="text-secondary mb-3">
               <%= truncate(recipe.content, length: 100, separator: ' ') %>
             </p>
 
-            <!-- ⭐ Calificación promedio -->
-            <div class="mt-3">
-              <%= render "shared/rating_stars", recipe: recipe %>
+            <!-- ⭐ Mostrar estrellas según el valor de recipe.rating -->
+            <div class="mt-3 d-flex align-items-center">
+              <% rating = recipe.rating || 0 %>
+              <% 5.times do |i| %>
+                <% if i < rating %>
+                  <i class="bi bi-star-fill text-warning fs-5"></i>
+                <% else %>
+                  <i class="bi bi-star text-warning fs-5"></i>
+                <% end %>
+              <% end %>
+              <span class="ms-2 text-muted small">
+                <%= recipe.rating ? "#{recipe.rating}/5" : "Sin calificar" %>
+              </span>
             </div>
           </div>
 
@@ -41,8 +59,7 @@
             <%= link_to "Ver", recipe_path(recipe),
                 class: "btn btn-sm btn-outline-primary rounded-pill px-3" %>
 
-            <button class="btn btn-sm btn-outline-success rounded-pill px-3"
-                    data-action="click->share#receta"
+            <button class="btn btn-sm btn-outline-success rounded-pill px-3 btn-compartir"
                     data-nombre="<%= recipe.name %>"
                     data-url="<%= recipe_url(recipe) %>">
               <i class="bi bi-share"></i> Compartir
@@ -61,3 +78,30 @@
     <p>No tienes recetas guardadas todavía.</p>
   </div>
 <% end %>
+
+<!-- Script para que los botones Compartir funcionen -->
+<script>
+  document.addEventListener("turbo:load", () => {
+    document.querySelectorAll(".btn-compartir").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const nombre = btn.dataset.nombre;
+        const url = btn.dataset.url;
+
+        if (navigator.share) {
+          navigator.share({
+            title: nombre,
+            text: `Mira esta receta: ${nombre}`,
+            url: url
+          }).catch(err => console.error("Error al compartir:", err));
+        } else {
+          navigator.clipboard.writeText(url).then(() => {
+            alert("🔗 Enlace copiado al portapapeles");
+          }).catch(err => {
+            console.error("Error al copiar enlace:", err);
+            alert("No se pudo copiar el enlace");
+          });
+        }
+      });
+    });
+  });
+</script>
