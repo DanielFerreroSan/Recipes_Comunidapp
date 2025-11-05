@@ -7,6 +7,7 @@ class MessagesController < ApplicationController
     @message.role = "user"
 
     if @message.save
+      build_conversation_history
       if @message.file.attached?
         process_file(@message.file)
       else
@@ -37,37 +38,49 @@ class MessagesController < ApplicationController
     params.require(:message).permit(:content, :file)
   end
 
+  def build_conversation_history    # GENERA HISTORIAL
+    @ruby_llm_chat = RubyLLM.chat
+    @chat.messages.order(:created_at).each do |message|
+      @ruby_llm_chat.add_message(
+        role: message.role,
+        content: message.content
+      )
+    end
+  end
 
-  def process_file(file)    # Procesa archivos PDF, imágenes o audios
-      if file.content_type == "application/pdf"
-        ruby_llm_chat = RubyLLM.chat(model: "gemini-2.0-flash")
-        ruby_llm_chat.with_instructions(user_prompt(current_user))
-        @response = ruby_llm_chat.ask(@message.content, with: { pdf: url_for(file) })
-      elsif file.image?
-        ruby_llm_chat = RubyLLM.chat(model: "gpt-4o") # modelo con visión
-        ruby_llm_chat.with_instructions(user_prompt(current_user))
-        @response = ruby_llm_chat.ask(@message.content, with: { image: file.url })
-      elsif file.audio?
-        @ruby_llm_chat = RubyLLM.chat(model: "gpt-4o-audio-preview")
-        Dir.mktmpdir do |dir|
-          require 'open-uri'
-          temp_file_path = File.join(dir, @message.file.filename.to_s)
 
-          URI.open(@message.file.url) do |remote_file|
-            File.open(temp_file_path, 'wb') do |file|
-              file.write(remote_file.read)
-            end
+  def process_file(file)    # PROCESA ARCHIVOSs
+    model =
+      case file.content_type
+      when "application/pdf" then "gemini-2.0-flash"
+      when /^image\// then "gpt-4o"
+      when /^audio\// then "gpt-4o-audio-preview"
+      else "gpt-4.1-nano"
+      end
+
+    ruby_llm_chat = @ruby_llm_chat.with_model(model)
+
+    if file.content_type == "application/pdf"
+      @response = ruby_llm_chat.ask(@message.content, with: { pdf: url_for(file) })
+    elsif file.image?
+      @response = ruby_llm_chat.ask(@message.content, with: { image: url_for(file) })
+    elsif file.audio?
+      Dir.mktmpdir do |dir|
+        require "open-uri"
+        temp_file_path = File.join(dir, file.filename.to_s)
+
+          URI.open(url_for(file)) do |remote_file|
+            File.binwrite(temp_file_path, remote_file.read)
           end
-        @response = @ruby_llm_chat.ask(@message.content, with: {audio: temp_file_path})
+
+        @response = ruby_llm_chat.ask(@message.content, with: { audio: temp_file_path })
       end
     end
   end
 
-  # Envía pregunta normal si no hay archivo
-  def send_question
-    ruby_llm_chat = RubyLLM.chat(model: "gpt-4.1-nano")
-    @response = ruby_llm_chat.with_instructions(user_prompt(current_user))
-                              .ask(@message.content)
+  def send_question               #  PREGUNTA NORMAL
+    ruby_llm_chat = @ruby_llm_chat.with_model("gpt-4.1-nano")
+    @response = ruby_llm_chat.ask(@message.content)
   end
 
   def user_prompt(user)
