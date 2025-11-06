@@ -1,6 +1,7 @@
 <h1 class="mb-4 text-center fw-bold text-primary"><%= @recipe.name %></h1>
 
-<div class="card p-4 mb-4 shadow-sm border-0 rounded-4 mx-auto" style="max-width: 700px; background-color: #f9f7f1;">
+<div class="card p-4 mb-4 shadow-sm border-0 rounded-4 mx-auto" 
+     style="max-width: 700px; background-color: #f9f7f1;">
   <p class="text-muted mb-2">
     <i class="bi bi-tag"></i>
     <strong>Categoría:</strong> <%= @recipe.category.presence || "Sin categoría" %>
@@ -17,46 +18,77 @@
   </p>
 </div>
 
+<!-- ⭐ Calificación -->
+<div class="text-center mb-4">
+  <h5>⭐ Calificación actual: <%= @recipe.rating || "Sin calificar" %></h5>
+
+  <%= form_with model: @recipe, url: update_rating_recipe_path(@recipe), method: :patch, local: true do |f| %>
+    <div class="rating-stars mb-3">
+      <% 5.times do |i| %>
+        <label class="star" style="font-size: 2rem; color: <%= (@recipe.rating && i < @recipe.rating) ? 'gold' : '#ddd' %>; cursor: pointer;">
+          <%= f.radio_button :rating, i+1, style: "display: none;" %>
+          ★
+        </label>
+      <% end %>
+    </div>
+    <%= f.submit "Enviar calificación", class: "btn btn-warning rounded-pill px-4" %>
+  <% end %>
+</div>
+
+<!-- Botones de acción: Volver, Compartir, Eliminar -->
 <div class="d-flex justify-content-center gap-3 mt-4">
   <%= link_to "Volver", recipes_path, class: "btn btn-outline-secondary rounded-pill px-4" %>
 
-  <%= link_to "Compartir", "#",
-      class: "btn btn-outline-success rounded-pill px-4",
-      data: { action: "click->share#receta", nombre: @recipe.name, url: recipe_url(@recipe) } %>
+  <button class="btn btn-outline-success rounded-pill px-4 btn-compartir"
+          data-nombre="<%= @recipe.name %>"
+          data-url="<%= recipe_url(@recipe) %>">
+    Compartir
+  </button>
 
   <%= link_to "Eliminar", recipe_path(@recipe),
       data: { turbo_method: :delete, turbo_confirm: "¿Seguro que deseas eliminar esta receta?" },
       class: "btn btn-outline-danger rounded-pill px-4" %>
 </div>
 
+<!-- Script para estrellas interactivas y compartir -->
 <script>
-  function compartirReceta(nombre, url) {
-    if (navigator.share) {
-      navigator.share({
-        title: nombre,
-        text: `Mira esta receta que encontré: ${nombre}`,
-        url: url
-      })
-      .then(() => console.log("Receta compartida con éxito"))
-      .catch((error) => console.log("Error al compartir:", error));
-    } else {
-      navigator.clipboard.writeText(url);
-      alert("🔗 Enlace copiado al portapapeles");
-    }
-  }
-
-  function initBotonesCompartir() {
-    document.querySelectorAll('[data-action="click->share#receta"]').forEach(btn => {
-      btn.removeEventListener("click", btn._shareListener);
-      btn._shareListener = event => {
-        event.preventDefault();
-        const nombre = btn.dataset.nombre;
-        const url = btn.dataset.url;
-        compartirReceta(nombre, url);
-      };
-      btn.addEventListener("click", btn._shareListener);
+document.addEventListener("turbo:load", () => {
+  // Estrellas interactivas
+  const stars = document.querySelectorAll(".star");
+  stars.forEach((star, index) => {
+    star.addEventListener("mouseover", () => {
+      stars.forEach((s, i) => s.style.color = i <= index ? 'gold' : '#ddd');
     });
-  }
+    star.addEventListener("mouseout", () => {
+      const selected = document.querySelector('input[name="recipe[rating]"]:checked');
+      stars.forEach((s, i) => s.style.color = selected && i < selected.value ? 'gold' : '#ddd');
+    });
+    star.addEventListener("click", () => {
+      stars.forEach((s, i) => s.style.color = i <= index ? 'gold' : '#ddd');
+    });
+  });
 
-  document.addEventListener("turbo:load", initBotonesCompartir);
+  // Botón Compartir
+  document.querySelectorAll(".btn-compartir").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const nombre = btn.dataset.nombre;
+      const url = btn.dataset.url;
+
+      if (navigator.share) {
+        navigator.share({
+          title: nombre,
+          text: `Mira esta receta: ${nombre}`,
+          url: url
+        }).catch(err => console.error("Error al compartir:", err));
+      } else {
+        navigator.clipboard.writeText(url).then(() => {
+          alert("🔗 Enlace copiado al portapapeles");
+        }).catch(err => {
+          console.error("Error al copiar enlace:", err);
+          alert("No se pudo copiar el enlace");
+        });
+      }
+    });
+  });
+});
 </script>

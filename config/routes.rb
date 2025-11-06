@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   end
 
   # Recetas (pueden estar asociadas a un mensaje o guardadas por el usuario)
-  resources :recipes, only: [:index, :show, :destroy, :create]
-
+  resources :recipes, only: [:index, :show, :destroy, :create] do
+    patch :update_rating, on: :member
+  end
 end
