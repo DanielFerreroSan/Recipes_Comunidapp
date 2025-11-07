@@ -1,3 +1,51 @@
+<% content_for :stylesheets do %>
+  <style>
+
+    .recipe-save-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .save-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #E6F3E6;
+      border: 1px solid #cfd8cf;
+      color: #2f3e2f;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .save-btn i {
+      font-size: 15px;
+      color: #5A7D7C;
+    }
+
+    .save-btn:hover {
+      background: #5A7D7C;
+      border-color: #5A7D7C;
+      color: #fff;
+    }
+
+    .save-btn:hover i {
+      color: #fff;
+    }
+
+
+    .save-btn:active {
+      transform: translateY(1px);
+    }
+
+  </style>
+<% end %>
+
+
 <% is_assistant = message.role == "assistant" %>
 <div class="message <%= is_assistant ? 'assistant' : 'user' %>">
   <div class="avatar">
@@ -22,19 +70,22 @@
       <% if is_assistant && message.content.match(/^###\s*(.+)$/)&.captures&.first %>
         <% recipe_title = message.content.match(/^###\s*(.+)$/)&.captures&.first %>
         <% cat = RubyLLM.chat.with_instructions("Una sola palabra y nada más").ask("Dame una categoría para la receta: #{message.content}") %>
-        <div class="mt-2 text-end">
-          <%= button_to "💾 Guardar receta",
-            recipes_path(recipe: {
-              name: recipe_title,
-              content: message.content,
-              category: cat.content,
-              chat_id: message.chat_id
-            }),
-            method: :post,
-            class: "btn btn-success btn-sm" %>
+        <div class="recipe-save-container">
+          <%= button_to recipes_path(
+                recipe: {
+                  name: recipe_title,
+                  content: message.content,
+                  category: cat.content,
+                  chat_id: message.chat_id
+                }),
+                method: :post,
+                class: "save-btn" do %>
+              <i class="fa-regular fa-floppy-disk"></i>
+              <span>Guardar receta</span>
+          <% end %>
         </div>
+
       <% end %>
     </div>
   </div>
 </div>
-
