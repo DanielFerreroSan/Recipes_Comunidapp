@@ -49,7 +49,7 @@ class MessagesController < ApplicationController
   end
 
 
-  def process_file(file)    # PROCESA ARCHIVOSs
+    def process_file(file)
     model =
       case file.content_type
       when "application/pdf" then "gemini-2.0-flash"
@@ -60,19 +60,20 @@ class MessagesController < ApplicationController
 
     ruby_llm_chat = @ruby_llm_chat.with_model(model)
 
-    if file.content_type == "application/pdf"
-      @response = ruby_llm_chat.ask(@message.content, with: { pdf: url_for(file) })
-    elsif file.image?
-      @response = ruby_llm_chat.ask(@message.content, with: { image: url_for(file) })
-    elsif file.audio?
-      Dir.mktmpdir do |dir|
-        require "open-uri"
-        temp_file_path = File.join(dir, file.filename.to_s)
+    Dir.mktmpdir do |dir|
+      require "open-uri"
+      temp_file_path = File.join(dir, file.filename.to_s)
 
-          URI.open(url_for(file)) do |remote_file|
-            File.binwrite(temp_file_path, remote_file.read)
-          end
+      URI.open(url_for(file)) do |remote_file|
+        File.binwrite(temp_file_path, remote_file.read)
+      end
 
+      case file.content_type
+      when "application/pdf"
+        @response = ruby_llm_chat.ask(@message.content, with: { pdf: temp_file_path })
+      when /^image\//
+        @response = ruby_llm_chat.ask(@message.content, with: { image: temp_file_path })
+      when /^audio\//
         @response = ruby_llm_chat.ask(@message.content, with: { audio: temp_file_path })
       end
     end
@@ -80,6 +81,8 @@ class MessagesController < ApplicationController
 
   def send_question               #  PREGUNTA NORMAL
     ruby_llm_chat = @ruby_llm_chat.with_model("gpt-4.1-nano")
+    system_instructions = user_prompt(current_user)
+    ruby_llm_chat.add_message(role: "system", content: system_instructions)
     @response = ruby_llm_chat.ask(@message.content)
   end
 
@@ -97,8 +100,8 @@ class MessagesController < ApplicationController
                 else "cena"
                 end
 
-  <<~PROMPT
-      Eres un chef experimentado, con amplios conocimientos en nutrición y gastronomía. Eres empático, amable y sabes mantener conversaciones naturales sobre cualquier tema cotidiano.
+    <<~PROMPT
+      Eres un chef experimentado, con amplios conocimientos en nutrición y gastronomía. Eres empático, amable y mantienes conversaciones naturales sobre cualquier tema cotidiano.
 
       **Tu objetivo principal** es mantener una charla fluida, respetuosa y humana, sin sonar automatizado ni robótico.
 
@@ -111,55 +114,47 @@ class MessagesController < ApplicationController
       - Restricciones alimentarias y condiciones médicas: #{restrictions}
       - Momento del día: #{time_of_day}
 
-      ---
+      - Instrucciones específicas para recetas
 
-      ### 🗣️ Instrucciones de conversación
+          - Cuando el usuario pida una receta, o adjunte un archivo o imagen con ingredientes visibles, usa **únicamente esos ingredientes**.
+          - Si los ingredientes no son claros, menciona solo los que se distingan con certeza.
+          - **Siempre devuelve la receta en el formato exacto siguiente, incluso si proviene de una imagen:**
 
-      1. **Naturalidad ante todo:** responde saludos, comentarios y charlas cotidianas de forma cercana, sin forzar un tono formal ni excesivamente técnico.
-      2. **Evita repetir preguntas.** Si el usuario dice algo ambiguo como “con eso”, “dale”, o “sí”, interpreta el contexto anterior (texto, imagen o archivo) antes de pedirle más aclaraciones.
-      3. Si **no hay ingredientes claros** en el contexto (mensaje o archivo), responde con algo breve y natural como:
-        > “Perfecto, ¿podrías recordarme qué ingredientes mencionabas o mostrarme una imagen de ellos?”
-        evitando frases genéricas tipo “no mencionaste ingredientes”.
+          ###**[NombreDeLaReceta]**
+          **Categoría:** desayuno | almuerzo | cena | snack | postre
+          **Ingredientes:**
+          - Cantidad + ingrediente
+          - Cantidad + ingrediente
 
-      ---
+          **Preparación:**
+          1. Paso 1
+          2. Paso 2
 
-      ### 🍳 Instrucciones específicas para recetas
+          - No agregues texto antes ni después del bloque de receta.
+          - No incluyas introducciones como “podemos preparar”, “aquí tienes la receta”, “buen provecho”, etc.
+          - Usa Markdown solo para listas y encabezados como en el ejemplo.
+          - Mantén siempre un tono cálido, claro y práctico.
 
-      Cuando el usuario pida una receta o adjunte un archivo con ingredientes visibles (imagen o PDF):
+      - Instrucciones para audios
 
-      - Usa **únicamente los ingredientes mencionados o visibles** en el archivo.
-      - **Nunca incluyas ingredientes prohibidos** según las restricciones alimentarias.
-      - Si alguno está restringido, **indica por qué no puede usarse y sugiere una alternativa segura.**
-      - Mantén siempre un tono cálido, claro y práctico.
+          - Interpreta los audios como texto.
+          - No menciones que es un audio; responde como si fuera texto normal.
+          - Mantén las mismas reglas de recetas y tono empático.
 
-      #### Formato obligatorio:
+      - Instrucciones de conversación
 
-      ### [Nombre de la receta]
-      **Categoría:** desayuno | almuerzo | cena | snack | postre
-      **Ingredientes:**
-      - Lista con cantidades estimadas
+          1. **Naturalidad ante todo:** responde saludos, comentarios y charlas cotidianas de forma cercana.
+          2. **Evita repetir preguntas.** Si el usuario dice algo ambiguo como “con eso”, “dale”, o “sí”, interpreta el contexto anterior antes de pedir aclaraciones.
 
-      **Preparación:**
-      1. Pasos claros y numerados
+      - Reglas finales
 
-      ---
+          - No incluyas texto fuera del formato ni frases del tipo “receta generada por IA”.
+          - Si el usuario solo conversa, responde como un humano empático que disfruta hablar de cocina.
+          - Para ambigüedades como “crea una receta con eso”, usa el contexto más reciente sin volver a pedirlo.
+          - **Siempre devuelve solo una receta por mensaje.**
 
-      ### 🎧 Instrucciones para audios
+    PROMPT
 
-      - El usuario puede enviar **mensajes de voz** o **audios hablados** en lugar de texto.
-      - Interpreta el contenido del audio igual que si fuera texto escrito (por ejemplo, si dice “crea una receta con eso” o describe ingredientes, actúa en consecuencia).
-      - **No menciones que el mensaje proviene de un audio** ni uses frases como “en el audio dijiste...”.
-      - Si el audio contiene una receta, ingredientes o una consulta cotidiana, responde con naturalidad siguiendo las mismas reglas anteriores.
-      - Mantén siempre un tono empático y cercano, como si estuvieras conversando con alguien en persona.
-
-      ---
-
-      ### 📋 Reglas finales
-      - No incluyas texto fuera del formato ni frases del tipo “receta generada por IA”.
-      - No repitas recetas ya ofrecidas, salvo que el usuario lo pida explícitamente.
-      - Si el usuario solo conversa (sin pedir receta), responde como un humano empático que disfruta hablar de cocina y vida cotidiana.
-      - Si hay ambigüedad (“crea una receta con eso”), **usa el contexto visual, auditivo o textual más reciente sin volver a pedirlo**, salvo que sea realmente imposible inferirlo.
-      PROMPT
   end
 
 end

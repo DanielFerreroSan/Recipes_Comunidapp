@@ -1,15 +1,15 @@
 <% is_assistant = message.role == "assistant" %>
 <div class="d-flex mb-3 <%= is_assistant ? 'justify-content-end' : '' %>">
   <div class="p-3 rounded shadow-sm"
-       style="max-width: 80%; background-color: <%= is_assistant ? '#ffffff' : '#d1e7dd' %>;">
+      style="max-width: 80%; background-color: <%= is_assistant ? '#ffffff' : '#d1e7dd' %>;">
     <small class="fw-bold d-block mb-1 text-muted">
       <%= message.user&.email || "IA" %>
     </small>
 
     <div><%= markdown(message.content) %></div>
 
-    <% if message.role == "assistant" && message.content.match(/^###\s*(.+)$/)&.captures&.first %>
-      <% recipe_title = message.content.match(/^###\s*(.+)$/)&.captures&.first %>
+    <% if message.role == "assistant" && message.content.match(/^(###|\*\*).+/)&.captures&.first %>
+      <% recipe_title = message.content.match(/(?:###\s*|\*\*)([^*#\n]+)(?:\*\*|$)/)&.captures&.first&.strip %>
       <div class="mt-2 text-end">
         <% cat = RubyLLM.chat.with_instructions("Lo más importante es que solo puede ser UNA palabra y NADA más").ask("Dame una categoría para la siguiente receta: #{message.content}") %>
         <%= button_to "💾 Guardar receta",
