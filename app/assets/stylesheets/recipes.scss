@@ -30,6 +30,8 @@
       transform: translateY(-1px);
     }
   }
+}
+
 .body-recipes-page::before {
   content: "";
   position: fixed;
@@ -45,5 +47,5 @@
   z-index: -1;
 }
 .recipes-page .mt-3 {
-  margin-top: 0.2rem !important; 
+  margin-top: 0.2rem !important;
 }
