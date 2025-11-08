@@ -41,3 +41,12 @@
   color: white;
   transform: translateY(-2px);
 }
+.titulo {
+  color: rgb(250, 147, 36);
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+  padding: 20px 0;
+  margin: 0;
+  width: 100%;
+  text-align: center;  /* centra el texto */
+  display: block;      /* asegura que se comporte como bloque */
+}
