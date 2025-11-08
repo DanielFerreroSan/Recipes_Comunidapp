@@ -1,59 +1,163 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
+<% content_for :stylesheets do %>
+  <style>
+    body {
+      background: url("<%= asset_path('chat-background.png') %>") no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Poppins', sans-serif;
+    }
 
-<%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-  <%= f.error_notification %>
+    .devise-edit-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 15px;
+    }
 
-  <div class="form-inputs">
-    <%= f.input :email, required: true, autofocus: true %>
 
-    <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-      <p>Currently waiting confirmation for: <%= resource.unconfirmed_email %></p>
-    <% end %>
+    .devise-edit-container {
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 40px 50px;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    }
 
-    <%= f.input :password,
-                hint: "leave it blank if you don't want to change it",
-                required: false,
-                input_html: { autocomplete: "new-password" } %>
-    <%= f.input :password_confirmation,
-                required: false,
-                input_html: { autocomplete: "new-password" } %>
-    <%= f.input :current_password,
-                hint: "we need your current password to confirm your changes",
-                required: true,
-                input_html: { autocomplete: "current-password" } %>
-    <%= f.input :age,
-                hint: "give your age to personalize your experience",
-                required: false,
-                input_html: { autocomplete: "age" } %>
-    <%= f.input :gender,
-                hint: "give your age to personalize your experience",
-                required: false,
-                input_html: { autocomplete: "gender" } %>
-    <%= f.input :activity,
-                hint: "tell us about your sports activity to personalize your experience",
-                required: false,
-                input_html: { autocomplete: "activity" } %>
-    <%= f.input :height,
-                hint: "give your height to personalize your experience",
-                required: false,
-                input_html: { autocomplete: "height" } %>
-    <%= f.input :weight,
-                hint: "give your weight to personalize your experience",
-                required: false,
-                input_html: { autocomplete: "weight" } %>
-    <%= f.input :restrictions,
-                hint: "tell us about your dietary restrictions to personalize your experience",
-                required: false,
-                input_html: { autocomplete: "restrictions" } %>
-  </div>
+    .devise-edit-container h2,
+    .devise-edit-container h3 {
+      text-align: center;
+      color: #333;
+      font-weight: 700;
+      margin-bottom: 25px;
+    }
 
-  <div class="form-actions">
-    <%= f.button :submit, "Update" %>
-  </div>
+
+    .devise-edit-container input[type="text"],
+    .devise-edit-container input[type="email"],
+    .devise-edit-container input[type="password"],
+    .devise-edit-container input[type="number"],
+    .devise-edit-container textarea,
+    .devise-edit-container select {
+      background-color: #fff !important;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px 15px;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+
+    .devise-edit-container input:focus,
+    .devise-edit-container textarea:focus,
+    .devise-edit-container select:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
+
+    .devise-edit-container .form-actions {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    .devise-edit-container .form-actions .btn,
+    .devise-edit-container input[type="submit"],
+    .devise-edit-container button {
+      background-color: #007bff;
+      border: none;
+      color: white;
+      border-radius: 10px;
+      padding: 10px 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .devise-edit-container .form-actions .btn:hover,
+    .devise-edit-container input[type="submit"]:hover,
+    .devise-edit-container button:hover {
+      background-color: #0056b3;
+    }
+
+    .devise-edit-container a {
+      display: inline-block;
+      margin-top: 15px;
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .devise-edit-container a:hover {
+      text-decoration: underline;
+    }
+  </style>
 <% end %>
 
-<h3>Cancel my account</h3>
+<div class="devise-edit-wrapper">
+  <div class="devise-edit-container">
 
-<div>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, method: :delete %></div>
+    <h2>Editar usuario</h2>
 
-<%= link_to "Back", :back %>
+    <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+      <%= f.error_notification %>
+
+      <div class="form-inputs">
+        <%= f.input :email, required: true, autofocus: true %>
+
+        <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+          <p>Currently waiting confirmation for: <%= resource.unconfirmed_email %></p>
+        <% end %>
+
+        <%= f.input :password,
+                    hint: "Déjalo en blanco si no deseas cambiarlo",
+                    required: false,
+                    input_html: { autocomplete: "new-password" } %>
+        <%= f.input :password_confirmation,
+                    required: false,
+                    input_html: { autocomplete: "new-password" } %>
+        <%= f.input :current_password,
+                    hint: "Necesitamos tu password actual para actualizar tus cambios",
+                    required: true,
+                    input_html: { autocomplete: "current-password" } %>
+        <%= f.input :age,
+                    hint: "Edad",
+                    required: false,
+                    input_html: { autocomplete: "age" } %>
+        <%= f.input :gender,
+                    hint: "Género",
+                    required: false,
+                    input_html: { autocomplete: "gender" } %>
+        <%= f.input :activity,
+                    hint: "Actividad física",
+                    required: false,
+                    input_html: { autocomplete: "activity" } %>
+        <%= f.input :height,
+                    hint: "Altura en cm",
+                    required: false,
+                    input_html: { autocomplete: "height" } %>
+        <%= f.input :weight,
+                    hint: "Peso en Kg",
+                    required: false,
+                    input_html: { autocomplete: "weight" } %>
+        <%= f.input :restrictions,
+                    hint: "Dinos si tienes alguna restriccion alimenticia o alergia",
+                    required: false,
+                    input_html: { autocomplete: "restrictions" } %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.button :submit, "Actualizar datos" %>
+      </div>
+    <% end %>
+
+
+
+    <div>
+      Unhappy?
+      <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, method: :delete %>
+    </div>
+
+    <%= link_to "Back", :back %>
+  </div>
+</div>
