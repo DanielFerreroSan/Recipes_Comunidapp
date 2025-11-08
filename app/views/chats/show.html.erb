@@ -10,34 +10,64 @@
     }
 
     .chat-layout {
+      position: relative;
+      isolation: isolate; /* 👈 crea un nuevo stacking context */
       display: flex;
       flex-direction: column;
-      height: calc(100vh - 56px); /* resta navbar */
+      height: calc(100vh - 56px);
       overflow: hidden;
-      padding-bottom: 8px; /* margen inferior visual */
+      background: url(<%= asset_path('chat-background.png') %>) center/cover no-repeat fixed;
     }
+
+    .chat-layout::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.25); /* controla opacidad del velo */
+      z-index: 0; /* queda debajo del contenido del chat */
+    }
+
+    .chat-layout > * {
+      position: relative;
+      z-index: 1; /* asegura que los mensajes y form queden sobre el velo */
+    }
+
 
     .chat-header {
       flex-shrink: 0;
-      background: #f0f2f5;
-      padding: 12px;
-      border-bottom: 1px solid #ddd;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 14px 0;
       text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
+
+    .chat-header h1 {
+      margin: 0;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #333;
+      letter-spacing: 0.2px;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+    }
+
 
     .chat-input {
       flex-shrink: 0;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 -1px 10px rgba(0,0,0,0.08);
-      padding: 8px 16px;
-      margin-bottom: 8px;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+      padding: 0px 16px 20px 16px;
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 10;
       position: relative;
     }
+
 
     /* Formulario interno */
     .chat-input form {
@@ -117,13 +147,12 @@
       flex-shrink: 0;
     }
 
-    /* colores de avatar */
     .user-avatar {
-      background-color: #007bff;
+      background-color: #5A7D7C; /* combina con burbuja */
     }
 
     .assistant-avatar {
-      background-color: #6c757d;
+      background-color: #A8B4A5; /* gris oliva */
     }
 
     /* contenedor de burbujas */
@@ -152,9 +181,10 @@
     }
 
     .message.user .bubble {
-      background-color: #007bff;
+      background-color: #5A7D7C; /* azul verdoso suave */
       color: #fff;
       border-top-left-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
     .message.assistant .avatar {
@@ -166,9 +196,10 @@
     }
 
     .message.assistant .bubble {
-      background-color: #fff;
-      color: #222;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #2b2b2b;
       border-top-right-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
 
@@ -178,6 +209,50 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      height: 20px;
+    }
+
+    .typing-indicator span {
+      display: block;
+      width: 8px;
+      height: 8px;
+      background-color: #ccc;
+      border-radius: 50%;
+      animation: typing 1s infinite ease-in-out;
+    }
+
+    .typing-indicator span:nth-child(1) {
+      animation-delay: 0s;
+    }
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+      0%, 80%, 100% {
+        opacity: 0.3;
+        transform: translateY(0);
+      }
+      40% {
+        opacity: 1;
+        transform: translateY(-3px);
+      }
+    }
+
+    .loading-bubble {
+      background: #fff;
+      color: #333;
+      font-style: italic;
+    }
+
+
 
 
   </style>
@@ -186,10 +261,13 @@
 <% content_for :full_width, true %>
 
 <div class="chat-layout">
-  <header class="chat-header">
-    <h1 class="h4 fw-bold text-center text-secondary mb-0">
-      Chat: <%= @chat.title %>
+  <header class="chat-header d-flex align-items-center justify-content-between">
+    <h1 class="h4 fw-bold px-5 text-start text-secondary mb-0">
+      Chat: <%= @chat.messages.order(:created_at).first&.content&.truncate(40) || @chat.title %>
     </h1>
+    <h6 class="h6 fw-normal px-5 text-muted mb-0">
+      Creado el <%= @chat.created_at.strftime("%d/%m/%Y %H:%M") %>
+    </h6>
   </header>
 
   <main id="chat-messages" class="chat-messages">
@@ -215,5 +293,97 @@
         behavior: "smooth"
       });
     }
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const textarea = document.querySelector("#message_form .message-input");
+    const form = document.getElementById("message_form");
+
+    if (textarea && form) {
+      textarea.addEventListener("keydown", function (event) {
+        // Si se presiona Enter sin Shift
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault(); // evita el salto de línea
+          form.requestSubmit();   // envía el formulario
+        }
+      });
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("message_form");
+    const textarea = form.querySelector(".message-input");
+    const chatBox = document.getElementById("chat-messages");
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const content = textarea.value.trim();
+      if (content === "") return;
+
+      // Crear mensaje del usuario en el DOM de inmediato
+      const userMessage = document.createElement("div");
+      userMessage.classList.add("message", "user");
+      userMessage.innerHTML = `
+        <div class="avatar">
+          <div class="avatar-circle user-avatar">U</div>
+        </div>
+        <div class="bubble-container">
+          <div class="bubble">${content.replace(/\n/g, "<br>")}</div>
+        </div>
+      `;
+      chatBox.appendChild(userMessage);
+
+      // Agregar spinner para la respuesta
+      const assistantMessage = document.createElement("div");
+      assistantMessage.classList.add("message", "assistant");
+      assistantMessage.innerHTML = `
+        <div class="avatar">
+          <div class="avatar-circle assistant-avatar">IA</div>
+        </div>
+        <div class="bubble-container">
+          <div class="bubble loading-bubble">
+            <div class="typing-indicator">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      `;
+      chatBox.appendChild(assistantMessage);
+
+      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
+
+      // Enviar el formulario por fetch (sin recargar)
+      const formData = new FormData(form);
+      fetch(form.action, {
+        method: form.method,
+        body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+      .then(response => response.text())
+      .then(html => {
+        // Reemplazar el spinner con el nuevo mensaje renderizado
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = html;
+
+        const newMessage = tempDiv.querySelector(".message.assistant");
+        if (newMessage) {
+          assistantMessage.replaceWith(newMessage);
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        assistantMessage.querySelector(".bubble").innerHTML = "⚠️ Error al cargar respuesta";
+      });
+
+      // Limpiar el textarea
+      textarea.value = "";
+    });
   });
 </script>
