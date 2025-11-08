@@ -1,18 +1,4 @@
-.card .fa-trash {
-    opacity: 0.5;
-    transition: opacity 0.2s, transform 0.2s;
-  }
-
-  .card:hover .fa-trash {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-
-  .card .fa-trash:hover {
-    color: #dc3545; /* rojo Bootstrap */
-  }
-
-.chats-page::before {
+.body-recipes-page::before {
   content: "";
   position: fixed;
   top: 150px;
@@ -26,7 +12,6 @@
   opacity: 0.6;
   z-index: -1;
 }
-
-.chats-page .mt-3 {
+.recipes-page .mt-3 {
   margin-top: 0.2rem !important; 
 }
