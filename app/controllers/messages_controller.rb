@@ -1,6 +1,33 @@
 class MessagesController < ApplicationController
   before_action :set_chat
 
+  # def create
+  #   @message = @chat.messages.build(message_params)
+  #   @message.user = current_user
+  #   @message.role = "user"
+
+  #   if @message.save
+  #     build_conversation_history
+  #     if @message.file.attached?
+  #       process_file(@message.file)
+  #     else
+  #       send_question
+  #     end
+
+  #     @assistant_message = @chat.messages.create(
+  #       content: @response.content,
+  #       role: "assistant",
+  #       user_id: nil
+  #     )
+
+  #     redirect_to @chat
+
+  #   else
+  #     @messages = @chat.messages.order(:created_at) #Evita que crashee el chat si tiene un Nil como ID
+  #     render "chats/show", status: :unprocessable_entity
+  #   end
+  # end
+
   def create
     @message = @chat.messages.build(message_params)
     @message.user = current_user
@@ -8,6 +35,7 @@ class MessagesController < ApplicationController
 
     if @message.save
       build_conversation_history
+
       if @message.file.attached?
         process_file(@message.file)
       else
@@ -16,17 +44,23 @@ class MessagesController < ApplicationController
 
       @assistant_message = @chat.messages.create(
         content: @response.content,
-        role: "assistant",
-        user_id: nil
+        role: "assistant"
       )
 
-      redirect_to @chat
+      respond_to do |format|
+        # 🚀 Si la petición viene de fetch (AJAX)
+        format.js { render partial: "messages/message", locals: { message: @assistant_message }, formats: [:html] }
+
+        # 🚪 Si viene por navegación normal
+        format.html { redirect_to @chat }
+      end
 
     else
-      @messages = @chat.messages.order(:created_at) #Evita que crashee el chat si tiene un Nil como ID
+      @messages = @chat.messages.order(:created_at)
       render "chats/show", status: :unprocessable_entity
     end
   end
+
 
   private
 

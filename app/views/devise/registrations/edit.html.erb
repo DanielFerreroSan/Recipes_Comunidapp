@@ -91,6 +91,36 @@
     .devise-edit-container a:hover {
       text-decoration: underline;
     }
+
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag {
+      background-color: #e0e6e0;
+      color: #333;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+
+    .tag:hover {
+      background-color: #cfe3cf;
+    }
+
+    .tag.active {
+      background-color: #5A7D7C;
+      color: white;
+      border-color: #48625f;
+    }
+
+
   </style>
 <% end %>
 
@@ -125,9 +155,12 @@
                     required: false,
                     input_html: { autocomplete: "age" } %>
         <%= f.input :gender,
-                    hint: "Género",
-                    required: false,
-                    input_html: { autocomplete: "gender" } %>
+                    as: :select,
+                    collection: ["Masculino", "Femenino", "Otro"],
+                    include_blank: "Selecciona tu género",
+                    label: "Género",
+                    selected: f.object.gender.presence,
+                    required: false %>
         <%= f.input :activity,
                     hint: "Actividad física",
                     required: false,
@@ -140,10 +173,28 @@
                     hint: "Peso en Kg",
                     required: false,
                     input_html: { autocomplete: "weight" } %>
-        <%= f.input :restrictions,
-                    hint: "Dinos si tienes alguna restriccion alimenticia o alergia",
-                    required: false,
-                    input_html: { autocomplete: "restrictions" } %>
+        <div class="form-group">
+          <label>Restricciones alimenticias</label>
+          <p class="text-muted small mb-2">Selecciona todas las que apliquen:</p>
+
+          <% user_restrictions = (f.object.restrictions || "").split(",").map(&:strip) %>
+
+          <div id="restriction-tags" class="tag-container">
+            <% all_restrictions = ["Vegetariano", "Vegano", "Sin lactosa", "Sin gluten", "Sin frutos secos", "Sin mariscos", "Otros"] %>
+            <% all_restrictions.each do |r| %>
+              <span class="tag <%= 'active' if user_restrictions.include?(r) %>" data-value="<%= r %>"><%= r %></span>
+            <% end %>
+          </div>
+
+          <div id="other-restriction-container" class="mt-3" style="<%= user_restrictions.include?('Otros') ? '' : 'display: none;' %>">
+            <label for="other-restriction" class="small text-muted">Especificar restricciones</label>
+            <input type="text" id="other-restriction" class="form-control" placeholder="Especificar restricciones" value="<%= (user_restrictions - all_restrictions).join(', ') %>">
+          </div>
+
+          <%= f.hidden_field :restrictions, id: "restrictions-input", value: f.object.restrictions %>
+        </div>
+
+
       </div>
 
       <div class="form-actions">
@@ -161,3 +212,60 @@
     <%= link_to "Back", :back %>
   </div>
 </div>
+
+<%# <script>
+  document.addEventListener("turbo:load", () => {
+    const tags = document.querySelectorAll(".tag");
+    const input = document.getElementById("restrictions-input");
+
+    tags.forEach(tag => {
+      tag.addEventListener("click", () => {
+        tag.classList.toggle("active");
+
+        const activeTags = Array.from(document.querySelectorAll(".tag.active"))
+                                .map(t => t.dataset.value);
+
+        input.value = activeTags.join(", "); // si prefieres array, usa JSON.stringify(activeTags)
+      });
+    });
+  });
+</script> %>
+
+<script>
+  document.addEventListener("turbo:load", () => {
+    const tags = document.querySelectorAll(".tag");
+    const input = document.getElementById("restrictions-input");
+    const otherContainer = document.getElementById("other-restriction-container");
+    const otherInput = document.getElementById("other-restriction");
+
+    const updateInputValue = () => {
+      let activeTags = Array.from(document.querySelectorAll(".tag.active"))
+                            .map(t => t.dataset.value);
+      if (activeTags.includes("Otros") && otherInput.value.trim() !== "") {
+        activeTags.push(otherInput.value.trim());
+      }
+      input.value = activeTags.join(", ");
+    };
+
+    tags.forEach(tag => {
+      tag.addEventListener("click", () => {
+        tag.classList.toggle("active");
+
+        if (tag.dataset.value === "Otros") {
+          if (tag.classList.contains("active")) {
+            otherContainer.style.display = "block";
+          } else {
+            otherContainer.style.display = "none";
+            otherInput.value = "";
+          }
+        }
+
+        updateInputValue();
+      });
+    });
+
+    if (otherInput) {
+      otherInput.addEventListener("input", updateInputValue);
+    }
+  });
+</script>

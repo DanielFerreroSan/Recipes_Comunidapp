@@ -365,23 +365,23 @@
         body: formData,
         headers: {
           "X-Requested-With": "XMLHttpRequest",
+          "Accept": "text/javascript" // 👈 esto activa format.js
         },
+        cache: "no-store"
       })
       .then(response => response.text())
       .then(html => {
-        // Reemplazar el spinner con el nuevo mensaje renderizado
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = html;
-
         const newMessage = tempDiv.querySelector(".message.assistant");
-        if (newMessage) {
-          assistantMessage.replaceWith(newMessage);
-        }
+        if (newMessage) assistantMessage.replaceWith(newMessage);
       })
       .catch(error => {
         console.error("Error:", error);
         assistantMessage.querySelector(".bubble").innerHTML = "⚠️ Error al cargar respuesta";
       });
+
+
 
       // Limpiar el textarea
       textarea.value = "";

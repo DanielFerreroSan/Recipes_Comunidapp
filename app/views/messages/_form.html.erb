@@ -89,8 +89,6 @@
       transform: translateY(-1px);
     }
 
-
-
     .send-btn i {
       pointer-events: none;
     }
@@ -110,7 +108,7 @@
 
 
 <%= simple_form_for [chat, message],
-  html: { data: { turbo_frame: "chat-frame" },
+  html: { data: { turbo: false },
           class: "chat-form",
           id: "message_form" } do |f| %>
 
