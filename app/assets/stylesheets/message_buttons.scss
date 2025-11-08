@@ -1,0 +1,39 @@
+.recipe-save-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #5A7D7C;
+  border: 1px solid #5A7D7C;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-btn i {
+  font-size: 15px;
+  color: #E6F3E6;
+}
+
+.save-btn:hover {
+  background: #E6F3E6;
+  border-color: #cfd8cf;
+  color: #2f3e2f;
+}
+
+.save-btn:hover i {
+  color: #2f3e2f;
+}
+
+.save-btn:active {
+  transform: translateY(1px);
+}
