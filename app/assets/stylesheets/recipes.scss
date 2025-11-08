@@ -1,3 +1,37 @@
+// 🎨 Estilos del bloque de filtros de recetas
+.filter-form {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2rem;
+  padding: 1.2rem 2rem;
+  transition: all 0.3s ease;
+
+  label {
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+
+  .btn {
+    background-color: #fff !important;
+    color: #5fb573 !important;
+    font-weight: 700 !important;
+    border-radius: 50px !important;
+    border: none !important;
+    padding: 8px 26px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #e9f8ec !important;
+      transform: translateY(-1px);
+    }
+  }
+}
+
 .body-recipes-page::before {
   content: "";
   position: fixed;
@@ -13,5 +47,5 @@
   z-index: -1;
 }
 .recipes-page .mt-3 {
-  margin-top: 0.2rem !important; 
+  margin-top: 0.2rem !important;
 }
