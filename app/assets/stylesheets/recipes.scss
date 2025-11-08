@@ -30,4 +30,20 @@
       transform: translateY(-1px);
     }
   }
+.body-recipes-page::before {
+  content: "";
+  position: fixed;
+  top: 150px;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 120px);
+  background-image: asset-url("chat-background.png");
+  background-position: center;
+  background-repeat: repeat;
+  background-size: cover;
+  opacity: 0.6;
+  z-index: -1;
+}
+.recipes-page .mt-3 {
+  margin-top: 0.2rem !important; 
 }
